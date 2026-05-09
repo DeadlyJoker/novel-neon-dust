@@ -2,554 +2,235 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>霓虹尘埃 — 赛博朋克小说</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --neon-cyan: #00fff7;
-            --neon-pink: #ff00ff;
-            --neon-dim: #0a0a1a;
-            --card-bg: #111128;
-            --text-main: #e0e0f0;
-            --text-dim: #8888aa;
-            --accent: #ff3366;
-        }
         body {
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: var(--neon-dim);
-            color: var(--text-main);
-            min-height: 100vh;
-        }
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #0a0a2e 0%, #1a0a2e 50%, #0a0a2e 100%);
-            border-bottom: 1px solid rgba(0, 255, 247, 0.15);
-            padding: 30px 20px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 50% 50%, rgba(0,255,247,0.03) 0%, transparent 60%);
-            animation: headerGlow 8s ease-in-out infinite;
-        }
-        @keyframes headerGlow {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-        .header h1 {
-            position: relative;
-            font-size: 2.2em;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 20px rgba(0,255,247,0.3);
-            letter-spacing: 6px;
-            margin-bottom: 8px;
-        }
-        .header .subtitle {
-            position: relative;
-            color: var(--text-dim);
-            font-size: 0.9em;
-            letter-spacing: 3px;
-        }
-        .header .stats {
-            position: relative;
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            font-size: 0.8em;
-            color: var(--text-dim);
-        }
-        .header .stats span { color: var(--neon-cyan); }
-        /* Nav tabs */
-        .nav-tabs {
-            display: flex;
-            background: #0d0d25;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .nav-tabs button {
-            flex: 1;
-            min-width: 80px;
-            padding: 14px 16px;
-            background: transparent;
-            border: none;
-            color: var(--text-dim);
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
-            white-space: nowrap;
-        }
-        .nav-tabs button:hover { color: var(--neon-cyan); }
-        .nav-tabs button.active {
-            color: var(--neon-cyan);
-            border-bottom-color: var(--neon-cyan);
-            text-shadow: 0 0 10px rgba(0,255,247,0.2);
-        }
-        /* Main content */
-        .main {
-            max-width: 860px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background: #f5f5f5;
         }
-        /* Chapter list */
-        .chapter-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .chapter-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-main);
-            text-decoration: none;
-        }
-        .chapter-item:hover {
-            border-color: var(--neon-cyan);
-            background: rgba(0,255,247,0.04);
-            transform: translateX(4px);
-        }
-        .chapter-item .num {
-            width: 48px;
-            font-size: 1.1em;
-            color: var(--neon-cyan);
-            font-weight: 600;
-            opacity: 0.7;
-        }
-        .chapter-item .title-text {
-            flex: 1;
-            font-size: 0.95em;
-        }
-        .chapter-item .status {
-            font-size: 0.75em;
-            color: var(--text-dim);
-        }
-        /* Chapter reader */
-        .reader {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .reader.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .reader h2 {
-            color: var(--neon-cyan);
-            font-size: 1.4em;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0,255,247,0.1);
-            text-shadow: 0 0 10px rgba(0,255,247,0.15);
-        }
-        .reader-content {
-            line-height: 2;
-            font-size: 1.05em;
-        }
-        .reader-content p {
-            margin-bottom: 1.2em;
-            text-indent: 2em;
-        }
-        .reader-content h1, .reader-content h2, .reader-content h3 {
-            color: var(--neon-cyan);
-            margin: 1.5em 0 0.8em;
-        }
-        .reader-content blockquote {
-            border-left: 3px solid var(--neon-pink);
-            padding: 10px 16px;
-            margin: 1.2em 0;
-            background: rgba(255,0,255,0.04);
-            border-radius: 0 6px 6px 0;
-            color: #ccc;
-        }
-        .reader-content code {
-            background: rgba(0,255,247,0.08);
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 0.9em;
-            color: var(--neon-cyan);
-        }
-        .reader-content pre {
-            background: #050510;
-            padding: 16px;
-            border-radius: 8px;
-            overflow-x: auto;
-            border: 1px solid rgba(0,255,247,0.08);
-            margin: 1.2em 0;
-        }
-        .reader-nav {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-        .reader-nav button {
-            padding: 10px 24px;
-            background: rgba(0,255,247,0.08);
-            border: 1px solid rgba(0,255,247,0.2);
-            color: var(--neon-cyan);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s;
-        }
-        .reader-nav button:hover:not(:disabled) {
-            background: rgba(0,255,247,0.15);
-        }
-        .reader-nav button:disabled {
-            opacity: 0.3;
-            cursor: default;
-        }
-        .reader-nav .back-btn {
-            background: transparent;
-            border-color: rgba(255,255,255,0.1);
-            color: var(--text-dim);
-        }
-        .reader-nav .back-btn:hover {
-            border-color: var(--text-dim);
-        }
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-dim);
-        }
-        .loading .dots::after {
-            content: '';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-        @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
-        .error {
-            text-align: center;
+        .container {
+            background: white;
             padding: 40px;
-            color: var(--accent);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: var(--text-dim);
-            font-size: 0.8em;
-            border-top: 1px solid rgba(255,255,255,0.04);
-        }
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--neon-dim); }
-        ::-webkit-scrollbar-thumb { background: rgba(0,255,247,0.15); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,247,0.3); }
-        @media (max-width: 600px) {
-            .header h1 { font-size: 1.6em; letter-spacing: 4px; }
-            .main { padding: 12px; }
-            .chapter-item { padding: 10px 12px; }
-            .chapter-item .num { width: 36px; font-size: 0.9em; }
-            .reader h2 { font-size: 1.15em; }
-            .reader-content { font-size: 1em; }
-            .header .stats { gap: 15px; flex-wrap: wrap; }
-        }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; font-size: 2em; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 5px; font-size: 0.9em; }
+        .stats { text-align: center; color: #999; margin-bottom: 25px; font-size: 0.85em; }
+        .volume-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .volume-tabs a { padding: 10px 20px; cursor: pointer; color: #666; text-decoration: none; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .volume-tabs a.active { color: #2c3e50; border-bottom-color: #3b5998; }
+        .volume-tabs a:hover { color: #2c3e50; }
+        .chapter-list { list-style: none; margin-bottom: 30px; background: #fafafa; padding: 15px 20px; border-radius: 8px; }
+        .chapter-list li { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .chapter-list li:last-child { border-bottom: none; }
+        .chapter-list a { color: #2c3e50; text-decoration: none; font-weight: 500; display: block; cursor: pointer; }
+        .chapter-list a:hover { color: #3b5998; }
+        .chapter-list .meta { font-size: 0.85em; color: #999; margin-top: 3px; }
+        .chapter-list .latest { color: #e74c3c; font-size: 0.75em; margin-left: 8px; font-weight: bold; }
+        .chapter { margin-top: 40px; padding-top: 25px; border-top: 3px solid #2c3e50; display: none; }
+        .chapter.active { display: block; }
+        .chapter h2 { color: #2c3e50; margin-bottom: 20px; font-size: 1.5em; }
+        .chapter p { margin-bottom: 15px; text-indent: 2em; }
+        .chapter-nav { display: flex; justify-content: space-between; margin: 30px 0; padding: 15px 0; border-top: 1px solid #eee; }
+        .chapter-nav a { color: #3498db; text-decoration: none; padding: 8px 16px; border-radius: 4px; }
+        .chapter-nav a:hover { background: #3498db; color: white; }
+        .chapter-nav a.disabled { color: #ccc; pointer-events: none; }
+        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.8em; }
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .error { text-align: center; padding: 40px; color: #e74c3c; }
+        @media (max-width: 600px) { body { padding: 10px; } .container { padding: 20px; } h1 { font-size: 1.5em; } }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🌆 霓虹尘埃</h1>
+        <p class="subtitle">新天城 · 赛博朋克 · 热血长篇</p>
+        <p class="stats" id="stats">第一卷 80章 | 第二卷 25章 | 共105章 | <span id="update-time">加载中...</span></p>
 
-<div class="header">
-    <h1>✦ 霓虹尘埃 ✦</h1>
-    <div class="subtitle">新天城 · 赛博朋克 · 热血叙事</div>
-    <div class="stats">
-        <div><span id="total-chapters">105</span> 章</div>
-        <div>约 <span id="total-words">—</span> 万字</div>
-        <div id="last-update">加载中...</div>
-    </div>
-</div>
-
-<div class="nav-tabs" id="volume-tabs">
-    <button class="active" onclick="switchVolume(1)">第一幕 · 钢铁医生</button>
-    <button onclick="switchVolume(2)">第二幕 · 钢铁兄弟</button>
-</div>
-
-<div class="main">
-    <!-- 目录视图 -->
-    <div id="chapter-list-view" class="chapter-grid"></div>
-    
-    <!-- 阅读器视图 -->
-    <div id="reader-view" class="reader">
-        <h2 id="reader-title"></h2>
-        <div id="reader-content" class="reader-content"></div>
-        <div class="reader-nav">
-            <button class="back-btn" onclick="showList()">← 目录</button>
-            <div>
-                <button id="prev-chapter" onclick="prevChapter()">← 上一章</button>
-                <button id="next-chapter" onclick="nextChapter()">下一章 →</button>
-            </div>
+        <div class="volume-tabs">
+            <a id="tab-1" class="active" onclick="switchVolume(1)">📘 第一幕 · 钢铁医生</a>
+            <a id="tab-2" onclick="switchVolume(2)">📗 第二幕 · 钢铁兄弟</a>
         </div>
-    </div>
-</div>
 
-<footer>
-    《霓虹尘埃》© 2026 · 赛博朋克长篇 · GitHub Pages
-</footer>
-
-<script>
-// ===== 章节配置 =====
-// Volume 1: CHAPTER-01 ~ CHAPTER-80
-const vol1Chapters = [];
-for (let i = 1; i <= 80; i++) {
-    vol1Chapters.push({
-        id: `v1c${String(i).padStart(2, '0')}`,
-        file: `chapters/VOLUME-01-CHAPTER-${String(i).padStart(2, '0')}.md`,
-        title: `第${i}章`,
-        volume: 1
-    });
-}
-// Volume 2: CHAPTER-01 ~ CHAPTER-25 (and growing)
-const vol2Chapters = [];
-for (let i = 1; i <= 25; i++) {
-    vol2Chapters.push({
-        id: `v2c${String(i).padStart(2, '0')}`,
-        file: `chapters/VOLUME-02-CHAPTER-${String(i).padStart(2, '0')}.md`,
-        title: `第${i}章`,
-        volume: 2
-    });
-}
-// Fix Volume 2 Chapter 4-6 naming (004, 005, 006)
-const fixMap = { '04': '004', '05': '005', '06': '006' };
-for (let i = 4; i <= 6; i++) {
-    const idx = vol2Chapters.findIndex(c => c.id === `v2c0${i}`);
-    if (idx >= 0) {
-        vol2Chapters[idx].file = `chapters/VOLUME-02-CHAPTER-${fixMap[String(i).padStart(2, '0')]}.md`;
-    }
-}
-
-const allChapters = [...vol1Chapters, ...vol2Chapters];
-
-let currentVolume = 1;
-let currentChapterIndex = -1;
-
-// 章节标题映射（从文件名提取有意义的标题）
-const chapterTitles = {
-    // Volume 1
-    'v1c01': '序章：新秩序',
-    'v1c02': '地下区的医生',
-    'v1c03': '血手帮的阴影',
-    'v1c04': '铁牙来访',
-    'v1c05': '灰色包裹',
-    'v1c06': '地下工坊',
-    'v1c07': '废城的规矩',
-    'v1c08': '灰衣的注视',
-    'v1c09': '普罗米修斯',
-    'v1c10': '断裂的连线',
-    'v1c11': '深夜访客',
-    'v1c12': '老狗坠楼',
-    'v1c13': '地下火光',
-    'v1c14': '灰衣特工',
-    'v1c15': '苏焰的任务',
-    'v1c16': '逃亡路线',
-    'v1c17': '小满的求救',
-    'v1c18': '铁牙的算盘',
-    'v1c19': '废城之战（序）',
-    'v1c20': '废城之战（起）',
-    'v1c21': '废城之战（承）',
-    'v1c22': '废城之战（转）',
-    'v1c23': '废城之战（合）',
-    'v1c24': '钢铁医生',
-    'v1c25': '地下区的清晨',
-    'v1c26': '义体工坊',
-    'v1c27': '钢钉的故事',
-    'v1c28': '苏焰的伤',
-    'v1c29': '左臂的秘密',
-    'v1c30': '王景明的回声',
-    'v1c31': '铁牙的野心',
-    'v1c32': '蛇牙会的覆灭',
-    'v1c33': '老陈的情报',
-    'v1c34': '钱爷的债',
-    'v1c35': '泰坦的灰衣',
-    'v1c36': '克莱恩的微笑',
-    'v1c37': '普罗米修斯实验',
-    'v1c38': '父母的名字',
-    'v1c39': '小满的电磁',
-    'v1c40': '灰衣的追击',
-    'v1c41': '苏焰的选择',
-    'v1c42': '废城的夜晚',
-    'v1c43': '地下通道',
-    'v1c44': '第二地下城',
-    'v1c45': '回收者的地盘',
-    'v1c46': '黑市的交易',
-    'v1c47': '克莱恩的交易',
-    'v1c48': '防护罩',
-    'v1c49': '绝境求生',
-    'v1c50': '转折点',
-    'v1c51': '废城联盟',
-    'v1c52': '铁拳崛起',
-    'v1c53': '敌人的敌人',
-    'v1c54': '地下战线',
-    'v1c55': '最终布局',
-    'v1c56': '袭击计划',
-    'v1c57': '潜入泰坦',
-    'v1c58': '核心数据',
-    'v1c59': '逃亡之路',
-    'v1c60': '数据之战',
-    'v1c61': '灰衣的背叛',
-    'v1c62': '泰坦的反击',
-    'v1c63': '废城的防御',
-    'v1c64': '血腥战斗',
-    'v1c65': '黎明前夕',
-    'v1c66': '新的一天',
-    'v1c67': '余波',
-    'v1c68': '重建',
-    'v1c69': '王景明的遗产',
-    'v1c70': '云端永生的真相',
-    'v1c71': '记忆碎片',
-    'v1c72': '小满的觉醒',
-    'v1c73': '苏焰的身世',
-    'v1c74': '兄妹的线索',
-    'v1c75': '泰坦的阴影',
-    'v1c76': '钱爷的棋局',
-    'v1c77': '铁穹雇佣兵',
-    'v1c78': '月球来信',
-    'v1c79': '末路抉择',
-    'v1c80': '卷终 · 钢铁医生',
-    // Volume 2
-    'v2c01': '铁拳的邀请',
-    'v2c02': '义体工坊',
-    'v2c03': '钢钉',
-    'v2c04': '小满的新世界',
-    'v2c05': '地下区的第三股势力',
-    'v2c06': '工坊首单',
-    'v2c07': '人质',
-    'v2c08': '钱爷的棋局',
-    'v2c09': '苏焰的旧伤',
-    'v2c10': '克莱恩的交易',
-    'v2c11': '铁牙的算盘',
-    'v2c12': '月光照不到的地方',
-    'v2c13': '战争准备',
-    'v2c14': '开战',
-    'v2c15': '机甲之战',
-    'v2c16': '战利品',
-    'v2c17': '黑星的秘密',
-    'v2c18': '停战',
-    'v2c19': '旧伤复发',
-    'v2c20': '苏焰的过去',
-    'v2c21': '废城扩建',
-    'v2c22': '左臂的对话',
-    'v2c23': '白博士的下落',
-    'v2c24': '中转站',
-    'v2c25': '监控与反监控'
-};
-
-function getChapterTitle(ch) {
-    return chapterTitles[ch.id] || ch.title;
-}
-
-// ===== 核心函数 =====
-function switchVolume(vol) {
-    currentVolume = vol;
-    document.querySelectorAll('#volume-tabs button').forEach((btn, i) => {
-        btn.classList.toggle('active', i === (vol - 1));
-    });
-    renderChapterList();
-}
-
-function renderChapterList() {
-    const list = document.getElementById('chapter-list-view');
-    const reader = document.getElementById('reader-view');
-    reader.classList.remove('active');
-
-    const chapters = currentVolume === 1 ? vol1Chapters.reverse() : vol2Chapters.reverse();
-    list.innerHTML = chapters.map((ch, idx) => `
-        <div class="chapter-item" onclick="loadChapter('${ch.id}')">
-            <div class="num">${ch.title}</div>
-            <div class="title-text">${getChapterTitle(ch)}</div>
-            <div class="status">${idx === 0 ? '最新' : ''}</div>
+        <div class="chapter-list">
+            <h3 style="margin-bottom: 12px; color: #666;">📖 章节目录</h3>
+            <div id="chapter-list-content">加载中...</div>
         </div>
-    `).join('');
-    // Restore volume 1 order (reverse back)
-    if (currentVolume === 1) vol1Chapters.reverse();
 
-    list.style.display = 'block';
-}
+        <div id="chapter-content">
+            <div class="loading">📖 点击章节开始阅读</div>
+        </div>
 
-async function loadChapter(id) {
-    const ch = allChapters.find(c => c.id === id);
-    if (!ch) return;
+        <footer>
+            <p>《霓虹尘埃》© 2026 | 赛博朋克长篇 | GitHub Pages 自动渲染</p>
+        </footer>
+    </div>
 
-    currentChapterIndex = allChapters.indexOf(ch);
+    <script>
+        // ===== 章节配置 =====
+        function generateChapters(start, end, vol) {
+            const list = [];
+            for (let i = start; i <= end; i++) {
+                const pad = i < 10 ? `0${i}` : `${i}`;
+                let filename = `VOLUME-${vol === 1 ? '01' : '02'}-CHAPTER-`;
+                // Volume 2 chapters 4-6 use 3-digit naming
+                if (vol === 2 && i >= 4 && i <= 6) {
+                    filename += `00${i}`;
+                } else {
+                    filename += pad;
+                }
+                filename += '.md';
+                list.push({
+                    id: `v${vol}c${i}`,
+                    file: `chapters/${filename}`,
+                    title: `第${i}章`,
+                    volume: vol
+                });
+            }
+            return list;
+        }
 
-    const list = document.getElementById('chapter-list-view');
-    const reader = document.getElementById('reader-view');
-    list.style.display = 'none';
-    reader.classList.add('active');
+        // Volume 1
+        const chapters = generateChapters(1, 80, 1);
+        // Volume 2
+        const vol2 = generateChapters(1, 25, 2);
+        chapters.push(...vol2);
 
-    document.getElementById('reader-title').textContent = `${ch.title} · ${getChapterTitle(ch)}`;
-    document.getElementById('reader-content').innerHTML = '<div class="loading">加载中<span class="dots"></span></div>';
+        // 章节标题映射
+        const chapterTitles = {
+            'v1c01': '序章：新秩序', 'v1c02': '地下区的医生', 'v1c03': '血手帮的阴影',
+            'v1c04': '铁牙来访', 'v1c05': '灰色包裹', 'v1c06': '地下工坊',
+            'v1c07': '废城的规矩', 'v1c08': '灰衣的注视', 'v1c09': '普罗米修斯',
+            'v1c10': '断裂的连线', 'v1c11': '深夜访客', 'v1c12': '老狗坠楼',
+            'v1c13': '地下火光', 'v1c14': '灰衣特工', 'v1c15': '苏焰的任务',
+            'v1c16': '逃亡路线', 'v1c17': '小满的求救', 'v1c18': '铁牙的算盘',
+            'v1c19': '废城之战（序）', 'v1c20': '废城之战（起）', 'v1c21': '废城之战（承）',
+            'v1c22': '废城之战（转）', 'v1c23': '废城之战（合）', 'v1c24': '钢铁医生',
+            'v1c25': '地下区的清晨', 'v1c26': '义体工坊', 'v1c27': '钢钉的故事',
+            'v1c28': '苏焰的伤', 'v1c29': '左臂的秘密', 'v1c30': '王景明的回声',
+            'v1c31': '铁牙的野心', 'v1c32': '蛇牙会的覆灭', 'v1c33': '老陈的情报',
+            'v1c34': '钱爷的债', 'v1c35': '泰坦的灰衣', 'v1c36': '克莱恩的微笑',
+            'v1c37': '普罗米修斯实验', 'v1c38': '父母的名字', 'v1c39': '小满的电磁',
+            'v1c40': '灰衣的追击', 'v1c41': '苏焰的选择', 'v1c42': '废城的夜晚',
+            'v1c43': '地下通道', 'v1c44': '第二地下城', 'v1c45': '回收者的地盘',
+            'v1c46': '黑市的交易', 'v1c47': '克莱恩的交易', 'v1c48': '防护罩',
+            'v1c49': '绝境求生', 'v1c50': '转折点', 'v1c51': '废城联盟',
+            'v1c52': '铁拳崛起', 'v1c53': '敌人的敌人', 'v1c54': '地下战线',
+            'v1c55': '最终布局', 'v1c56': '袭击计划', 'v1c57': '潜入泰坦',
+            'v1c58': '核心数据', 'v1c59': '逃亡之路', 'v1c60': '数据之战',
+            'v1c61': '灰衣的背叛', 'v1c62': '泰坦的反击', 'v1c63': '废城的防御',
+            'v1c64': '血腥战斗', 'v1c65': '黎明前夕', 'v1c66': '新的一天',
+            'v1c67': '余波', 'v1c68': '重建', 'v1c69': '王景明的遗产',
+            'v1c70': '云端永生的真相', 'v1c71': '记忆碎片', 'v1c72': '小满的觉醒',
+            'v1c73': '苏焰的身世', 'v1c74': '兄妹的线索', 'v1c75': '泰坦的阴影',
+            'v1c76': '钱爷的棋局', 'v1c77': '铁穹雇佣兵', 'v1c78': '月球来信',
+            'v1c79': '末路抉择', 'v1c80': '卷终 · 钢铁医生',
+            'v2c01': '铁拳的邀请', 'v2c02': '义体工坊', 'v2c03': '钢钉',
+            'v2c04': '小满的新世界', 'v2c05': '地下区的第三股势力', 'v2c06': '工坊首单',
+            'v2c07': '人质', 'v2c08': '钱爷的棋局', 'v2c09': '苏焰的旧伤',
+            'v2c10': '克莱恩的交易', 'v2c11': '铁牙的算盘', 'v2c12': '月光照不到的地方',
+            'v2c13': '战争准备', 'v2c14': '开战', 'v2c15': '机甲之战',
+            'v2c16': '战利品', 'v2c17': '黑星的秘密', 'v2c18': '停战',
+            'v2c19': '旧伤复发', 'v2c20': '苏焰的过去', 'v2c21': '废城扩建',
+            'v2c22': '左臂的对话', 'v2c23': '白博士的下落', 'v2c24': '中转站',
+            'v2c25': '监控与反监控'
+        };
 
-    try {
-        const resp = await fetch(ch.file);
-        if (!resp.ok) throw new Error(`加载失败 (${resp.status})`);
-        const md = await resp.text();
-        document.getElementById('reader-content').innerHTML = marked.parse(md);
-    } catch (e) {
-        document.getElementById('reader-content').innerHTML = `<div class="error">❌ ${e.message}</div>`;
-    }
+        let currentVolume = 1;
+        let currentChapterIndex = -1;
+        let allChapters = chapters;
 
-    updateNav();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        // 切换卷
+        function switchVolume(vol) {
+            currentVolume = vol;
+            document.getElementById('tab-1').className = vol === 1 ? 'active' : '';
+            document.getElementById('tab-2').className = vol === 2 ? 'active' : '';
+            renderChapterList();
+        }
 
-function showList() {
-    currentChapterIndex = -1;
-    renderChapterList();
-}
+        // 渲染目录
+        function renderChapterList() {
+            const listEl = document.getElementById('chapter-list-content');
+            const volChapters = allChapters.filter(c => c.volume === currentVolume);
+            
+            // Volume 1 正序显示（1→80），Volume 2 倒序（最新在上）
+            const display = currentVolume === 1
+                ? volChapters.slice().reverse()
+                : volChapters.slice().reverse();
 
-function updateNav() {
-    document.getElementById('prev-chapter').disabled = currentChapterIndex <= 0;
-    document.getElementById('next-chapter').disabled = currentChapterIndex >= allChapters.length - 1;
-}
+            listEl.innerHTML = display.map((ch, idx) => {
+                const title = chapterTitles[ch.id] || ch.title;
+                const isLatest = idx === 0;
+                return `
+                    <li>
+                        <a onclick="loadChapter('${ch.id}')">
+                            ${title}
+                            ${isLatest ? '<span class="latest">最新</span>' : ''}
+                        </a>
+                        <div class="meta">${ch.id.replace('v', '卷').replace('c', '第')}章</div>
+                    </li>
+                `;
+            }).join('');
 
-function prevChapter() {
-    if (currentChapterIndex > 0) {
-        loadChapter(allChapters[currentChapterIndex - 1].id);
-    }
-}
+            // 恢复原始顺序以便后续操作
+            if (currentVolume === 1) volChapters.reverse();
 
-function nextChapter() {
-    if (currentChapterIndex < allChapters.length - 1) {
-        loadChapter(allChapters[currentChapterIndex + 1].id);
-    }
-}
+            // 如果在阅读器模式，返回目录界面
+            const contentEl = document.getElementById('chapter-content');
+            document.getElementById('chapter-list-content').parentElement.style.display = 'block';
+        }
 
-// ===== URL 参数支持 =====
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('chapter')) {
-    const chId = urlParams.get('chapter');
-    const ch = allChapters.find(c => c.id === chId);
-    if (ch) {
-        currentVolume = ch.volume;
-        document.querySelectorAll('#volume-tabs button').forEach((btn, i) => {
-            btn.classList.toggle('active', i === (currentVolume - 1));
-        });
-        loadChapter(chId);
-    }
-} else {
-    renderChapterList();
-}
+        // 加载章节
+        async function loadChapter(id) {
+            const chapter = allChapters.find(c => c.id === id);
+            if (!chapter) return;
 
-// ===== 最后更新时间 =====
-const updateTime = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-document.getElementById('last-update').textContent = updateTime;
-</script>
+            currentChapterIndex = allChapters.indexOf(chapter);
+
+            const listEl = document.getElementById('chapter-list-content');
+            const contentEl = document.getElementById('chapter-content');
+            
+            listEl.parentElement.style.display = 'none';
+            contentEl.innerHTML = '<div class="loading">📖 加载中...</div>';
+
+            setTimeout(() => {
+                contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+
+            try {
+                const response = await fetch(chapter.file);
+                if (!response.ok) throw new Error('加载失败');
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                const title = chapterTitles[ch.id] || chapter.title;
+
+                contentEl.innerHTML = `
+                    <div class="chapter active">
+                        <h2>${title}</h2>
+                        ${html}
+                        <div class="chapter-nav">
+                            <a href="#" class="${currentChapterIndex === 0 ? 'disabled' : ''}" onclick="loadChapter('${currentChapterIndex > 0 ? allChapters[currentChapterIndex - 1].id : ''}'); return false;">← 上一章</a>
+                            <a href="#" onclick="renderChapterList(); document.getElementById('chapter-content').innerHTML = '<div class=\"loading\">📖 点击章节开始阅读</div>'; return false;">返回目录</a>
+                            <a href="#" class="${currentChapterIndex === allChapters.length - 1 ? 'disabled' : ''}" onclick="loadChapter('${currentChapterIndex < allChapters.length - 1 ? allChapters[currentChapterIndex + 1].id : ''}'); return false;">下一章 →</a>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                contentEl.innerHTML = `<div class="error">❌ 加载失败：${error.message}</div>`;
+            }
+        }
+
+        // 初始化
+        renderChapterList();
+    </script>
 </body>
 </html>
