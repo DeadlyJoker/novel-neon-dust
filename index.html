@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>霓虹尘埃 — 赛博朋克小说</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -273,6 +272,9 @@
 
         // 更新时间
         document.getElementById('update-time').textContent = '最后更新：' + new Date().toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
+
+        console.log('霓虹尘埃页面已加载，章节:', vol1.length, '卷1 +', vol2.length, '卷2');
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
