@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>霓虹尘埃 — 赛博朋克小说</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -23,15 +24,11 @@
         }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; font-size: 2em; }
         .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9em; }
-        .vol-tab { text-align: center; margin-bottom: 20px; }
-        .vol-tab a { display: inline-block; padding: 8px 20px; cursor: pointer; color: #666; text-decoration: none; font-weight: 500; margin: 0 5px; border-bottom: 2px solid transparent; }
-        .vol-tab a.active { color: #2c3e50; border-bottom-color: #3b5998; }
-        .chapter-list { list-style: none; margin-bottom: 40px; background: #fafafa; padding: 20px; border-radius: 8px; display: none; }
-        .chapter-list.active { display: block; }
+        .chapter-list { list-style: none; margin-bottom: 40px; background: #fafafa; padding: 20px; border-radius: 8px; }
         .chapter-list li { padding: 12px 0; border-bottom: 1px solid #eee; }
         .chapter-list li:last-child { border-bottom: none; }
         .chapter-list a { color: #2c3e50; text-decoration: none; font-weight: 500; display: block; cursor: pointer; }
-        .chapter-list a:hover { color: #3b5998; }
+        .chapter-list a:hover { color: #c0392b; }
         .chapter-list .meta { font-size: 0.85em; color: #999; margin-top: 5px; }
         .chapter { margin-top: 50px; padding-top: 30px; border-top: 3px solid #2c3e50; display: none; }
         .chapter.active { display: block; }
@@ -51,22 +48,15 @@
     <div class="container">
         <h1>🌆 霓虹尘埃</h1>
         <p class="subtitle">新天城 · 赛博朋克 · 热血长篇</p>
-
-        <div class="vol-tab">
-            <a id="vtab1" class="active" onclick="showVol(1)">📘 第一幕 · 钢铁医生</a>
-            <a id="vtab2" onclick="showVol(2)">📗 第二幕 · 钢铁兄弟</a>
+        
+        <div class="chapter-list">
+            <h3 style="margin-bottom: 15px; color: #666;">📖 第二幕 · 钢铁兄弟（最新）</h3>
+            <div id="chapter-list-v2">加载中...</div>
         </div>
 
-        <!-- 第一卷目录 -->
-        <div id="vol1-list" class="chapter-list active">
-            <h3 style="margin-bottom: 15px; color: #666;">📖 第一幕（80章）</h3>
-            <div id="chapters-v1">加载中...</div>
-        </div>
-
-        <!-- 第二卷目录 -->
-        <div id="vol2-list" class="chapter-list">
-            <h3 style="margin-bottom: 15px; color: #666;">📖 第二幕（25章）</h3>
-            <div id="chapters-v2">加载中...</div>
+        <div class="chapter-list">
+            <h3 style="margin-bottom: 15px; color: #666;">📖 第一幕 · 钢铁医生</h3>
+            <div id="chapter-list-v1">加载中...</div>
         </div>
 
         <div id="chapter-content">
@@ -74,14 +64,15 @@
         </div>
 
         <footer>
-            <p>《霓虹尘埃》© 2026 | GitHub Pages 自动渲染 | 章节内容实时更新</p>
+            <p>《霓虹尘埃》© 2026</p>
+            <p>GitHub Pages 自动渲染 | 章节内容实时更新</p>
             <p style="margin-top: 10px;" id="update-time">最后更新：加载中...</p>
         </footer>
     </div>
 
     <script>
-        // 第一卷章节
-        const vol1 = [
+        // ===== 第一卷：钢铁医生（80章）=====
+        var vol1 = [
             { id: 1, file: 'chapters/VOLUME-01-CHAPTER-01.md', title: '序章：新秩序' },
             { id: 2, file: 'chapters/VOLUME-01-CHAPTER-02.md', title: '第2章：地下区的医生' },
             { id: 3, file: 'chapters/VOLUME-01-CHAPTER-03.md', title: '第3章：血手帮的阴影' },
@@ -164,8 +155,8 @@
             { id: 80, file: 'chapters/VOLUME-01-CHAPTER-80.md', title: '第80章：卷终·钢铁医生' }
         ];
 
-        // 第二卷章节
-        const vol2 = [
+        // ===== 第二卷：钢铁兄弟（25章）=====
+        var vol2 = [
             { id: 1, file: 'chapters/VOLUME-02-CHAPTER-01.md', title: '第1章：铁拳的邀请' },
             { id: 2, file: 'chapters/VOLUME-02-CHAPTER-02.md', title: '第2章：义体工坊' },
             { id: 3, file: 'chapters/VOLUME-02-CHAPTER-03.md', title: '第3章：钢钉' },
@@ -190,91 +181,81 @@
             { id: 22, file: 'chapters/VOLUME-02-CHAPTER-22.md', title: '第22章：左臂的对话' },
             { id: 23, file: 'chapters/VOLUME-02-CHAPTER-23.md', title: '第23章：白博士的下落' },
             { id: 24, file: 'chapters/VOLUME-02-CHAPTER-24.md', title: '第24章：中转站' },
-            { id: 25, file: 'chapters/VOLUME-02-CHAPTER-25.md', title: '第25章：监控与反监控' }
+            { id: 25, file: 'chapters/VOLUME-02-CHAPTER-25.md', title: '第25章：监控与反监控 🆕' }
         ];
 
-        // 渲染第一卷目录（倒序，最新在上）
+        // ===== 渲染目录 =====
         function renderV1() {
-            const el = document.getElementById('chapters-v1');
-            const list = [...vol1].reverse();
-            el.innerHTML = list.map((ch, idx) => `
-                <li>
-                    <a onclick="loadChapter(1, ${ch.id})">${ch.title}${idx === 0 ? ' 🆕' : ''}</a>
-                    <div class="meta">点击加载章节内容</div>
-                </li>
-            `).join('');
-        }
-
-        // 渲染第二卷目录（倒序，最新在上）
-        function renderV2() {
-            const el = document.getElementById('chapters-v2');
-            const list = [...vol2].reverse();
-            el.innerHTML = list.map((ch, idx) => `
-                <li>
-                    <a onclick="loadChapter(2, ${ch.id})">${ch.title}${idx === 0 ? ' 🆕' : ''}</a>
-                    <div class="meta">点击加载章节内容</div>
-                </li>
-            `).join('');
-        }
-
-        // 切换卷
-        function showVol(v) {
-            document.getElementById('vtab1').className = v === 1 ? 'active' : '';
-            document.getElementById('vtab2').className = v === 2 ? 'active' : '';
-            document.getElementById('vol1-list').className = v === 1 ? 'chapter-list active' : 'chapter-list';
-            document.getElementById('vol2-list').className = v === 2 ? 'chapter-list active' : 'chapter-list';
-        }
-
-        // 加载章节
-        async function loadChapter(vol, id) {
-            const arr = vol === 1 ? vol1 : vol2;
-            const chapter = arr.find(c => c.id === id);
-            if (!chapter) return;
-
-            const contentEl = document.getElementById('chapter-content');
-            document.getElementById('vol1-list').className = 'chapter-list';
-            document.getElementById('vol2-list').className = 'chapter-list';
-            contentEl.innerHTML = '<div class="loading">📖 加载中...</div>';
-
-            setTimeout(() => contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-
-            try {
-                const resp = await fetch(chapter.file);
-                if (!resp.ok) throw new Error('加载失败');
-                const md = await resp.text();
-                const html = marked.parse(md);
-
-                // 上一章/下一章
-                const idx = arr.findIndex(c => c.id === id);
-                const prevId = idx > 0 ? arr[idx - 1].id : null;
-                const nextId = idx < arr.length - 1 ? arr[idx + 1].id : null;
-
-                contentEl.innerHTML = `
-                    <div class="chapter active">
-                        <h2>${chapter.title}</h2>
-                        ${html}
-                        <div class="chapter-nav">
-                            <a href="#" class="${prevId === null ? 'disabled' : ''}" onclick="loadChapter(${vol}, ${prevId}); return false;">← 上一章</a>
-                            <a href="#" onclick="showVol(${vol}); scrollTo(0,0); return false;">返回目录</a>
-                            <a href="#" class="${nextId === null ? 'disabled' : ''}" onclick="loadChapter(${vol}, ${nextId}); return false;">下一章 →</a>
-                        </div>
-                    </div>
-                `;
-            } catch (e) {
-                contentEl.innerHTML = `<div class="error">❌ 加载失败：${e.message}</div>`;
+            var el = document.getElementById('chapter-list-v1');
+            if (!el) return;
+            el.innerHTML = '';
+            for (var i = 0; i < vol1.length; i++) {
+                var ch = vol1[i];
+                el.innerHTML += '<li><a onclick="loadChapter(1, ' + ch.id + ')">' + ch.title + '</a><div class="meta">点击加载章节内容</div></li>';
             }
         }
 
-        // 初始化
+        function renderV2() {
+            var el = document.getElementById('chapter-list-v2');
+            if (!el) return;
+            el.innerHTML = '';
+            // 倒序，最新在前
+            for (var i = vol2.length - 1; i >= 0; i--) {
+                var ch = vol2[i];
+                var isLatest = (i === vol2.length - 1);
+                el.innerHTML += '<li><a onclick="loadChapter(2, ' + ch.id + ')">' + ch.title + (isLatest ? ' <span style="color:#e74c3c;font-size:0.75em;font-weight:bold;">最新</span>' : '') + '</a><div class="meta">点击加载章节内容</div></li>';
+            }
+        }
+
+        // ===== 加载章节 =====
+        async function loadChapter(vol, id) {
+            var arr = (vol === 1) ? vol1 : vol2;
+            var chapter = null;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].id === id) { chapter = arr[i]; break; }
+            }
+            if (!chapter) return;
+
+            var contentEl = document.getElementById('chapter-content');
+            contentEl.innerHTML = '<div class="loading">📖 加载中...</div>';
+
+            setTimeout(function() { contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+
+            try {
+                var resp = await fetch(chapter.file);
+                if (!resp.ok) throw new Error('加载失败');
+                var md = await resp.text();
+                var html = marked.parse(md);
+
+                // 找到当前章节在数组中的位置
+                var idx = -1;
+                for (var i = 0; i < arr.length; i++) {
+                    if (arr[i].id === id) { idx = i; break; }
+                }
+
+                var prevId = (idx > 0) ? arr[idx - 1].id : null;
+                var nextId = (idx < arr.length - 1) ? arr[idx + 1].id : null;
+
+                contentEl.innerHTML = '<div class="chapter active">' +
+                    '<h2>' + chapter.title + '</h2>' +
+                    html +
+                    '<div class="chapter-nav">' +
+                        (prevId ? '<a href="#" onclick="loadChapter(' + vol + ', ' + prevId + '); return false;">← 上一章</a>' : '<a href="#" class="disabled">← 上一章</a>') +
+                        '<a href="#" onclick="location.reload(); return false;">返回目录</a>' +
+                        (nextId ? '<a href="#" onclick="loadChapter(' + vol + ', ' + nextId + '); return false;">下一章 →</a>' : '<a href="#" class="disabled">下一章 →</a>') +
+                    '</div>' +
+                '</div>';
+            } catch (e) {
+                contentEl.innerHTML = '<div class="error">❌ 加载失败：' + e.message + '</div>';
+            }
+        }
+
+        // ===== 初始化 =====
         renderV1();
         renderV2();
-        showVol(1);
 
-        // 更新时间
+        // 最后更新时间
         document.getElementById('update-time').textContent = '最后更新：' + new Date().toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
-
-        console.log('霓虹尘埃页面已加载，章节:', vol1.length, '卷1 +', vol2.length, '卷2');
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
