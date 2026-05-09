@@ -23,20 +23,18 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; font-size: 2em; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 5px; font-size: 0.9em; }
-        .stats { text-align: center; color: #999; margin-bottom: 25px; font-size: 0.85em; }
-        .volume-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .volume-tabs a { padding: 10px 20px; cursor: pointer; color: #666; text-decoration: none; font-weight: 500; border-bottom: 2px solid transparent; margin-bottom: -2px; }
-        .volume-tabs a.active { color: #2c3e50; border-bottom-color: #3b5998; }
-        .volume-tabs a:hover { color: #2c3e50; }
-        .chapter-list { list-style: none; margin-bottom: 30px; background: #fafafa; padding: 15px 20px; border-radius: 8px; }
-        .chapter-list li { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.9em; }
+        .vol-tab { text-align: center; margin-bottom: 20px; }
+        .vol-tab a { display: inline-block; padding: 8px 20px; cursor: pointer; color: #666; text-decoration: none; font-weight: 500; margin: 0 5px; border-bottom: 2px solid transparent; }
+        .vol-tab a.active { color: #2c3e50; border-bottom-color: #3b5998; }
+        .chapter-list { list-style: none; margin-bottom: 40px; background: #fafafa; padding: 20px; border-radius: 8px; display: none; }
+        .chapter-list.active { display: block; }
+        .chapter-list li { padding: 12px 0; border-bottom: 1px solid #eee; }
         .chapter-list li:last-child { border-bottom: none; }
         .chapter-list a { color: #2c3e50; text-decoration: none; font-weight: 500; display: block; cursor: pointer; }
         .chapter-list a:hover { color: #3b5998; }
-        .chapter-list .meta { font-size: 0.85em; color: #999; margin-top: 3px; }
-        .chapter-list .latest { color: #e74c3c; font-size: 0.75em; margin-left: 8px; font-weight: bold; }
-        .chapter { margin-top: 40px; padding-top: 25px; border-top: 3px solid #2c3e50; display: none; }
+        .chapter-list .meta { font-size: 0.85em; color: #999; margin-top: 5px; }
+        .chapter { margin-top: 50px; padding-top: 30px; border-top: 3px solid #2c3e50; display: none; }
         .chapter.active { display: block; }
         .chapter h2 { color: #2c3e50; margin-bottom: 20px; font-size: 1.5em; }
         .chapter p { margin-bottom: 15px; text-indent: 2em; }
@@ -44,7 +42,7 @@
         .chapter-nav a { color: #3498db; text-decoration: none; padding: 8px 16px; border-radius: 4px; }
         .chapter-nav a:hover { background: #3498db; color: white; }
         .chapter-nav a.disabled { color: #ccc; pointer-events: none; }
-        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.8em; }
+        footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.8em; }
         .loading { text-align: center; padding: 40px; color: #666; }
         .error { text-align: center; padding: 40px; color: #e74c3c; }
         @media (max-width: 600px) { body { padding: 10px; } .container { padding: 20px; } h1 { font-size: 1.5em; } }
@@ -54,16 +52,22 @@
     <div class="container">
         <h1>🌆 霓虹尘埃</h1>
         <p class="subtitle">新天城 · 赛博朋克 · 热血长篇</p>
-        <p class="stats" id="stats">第一卷 80章 | 第二卷 25章 | 共105章 | <span id="update-time">加载中...</span></p>
 
-        <div class="volume-tabs">
-            <a id="tab-1" class="active" onclick="switchVolume(1)">📘 第一幕 · 钢铁医生</a>
-            <a id="tab-2" onclick="switchVolume(2)">📗 第二幕 · 钢铁兄弟</a>
+        <div class="vol-tab">
+            <a id="vtab1" class="active" onclick="showVol(1)">📘 第一幕 · 钢铁医生</a>
+            <a id="vtab2" onclick="showVol(2)">📗 第二幕 · 钢铁兄弟</a>
         </div>
 
-        <div class="chapter-list">
-            <h3 style="margin-bottom: 12px; color: #666;">📖 章节目录</h3>
-            <div id="chapter-list-content">加载中...</div>
+        <!-- 第一卷目录 -->
+        <div id="vol1-list" class="chapter-list active">
+            <h3 style="margin-bottom: 15px; color: #666;">📖 第一幕（80章）</h3>
+            <div id="chapters-v1">加载中...</div>
+        </div>
+
+        <!-- 第二卷目录 -->
+        <div id="vol2-list" class="chapter-list">
+            <h3 style="margin-bottom: 15px; color: #666;">📖 第二幕（25章）</h3>
+            <div id="chapters-v2">加载中...</div>
         </div>
 
         <div id="chapter-content">
@@ -71,166 +75,204 @@
         </div>
 
         <footer>
-            <p>《霓虹尘埃》© 2026 | 赛博朋克长篇 | GitHub Pages 自动渲染</p>
+            <p>《霓虹尘埃》© 2026 | GitHub Pages 自动渲染 | 章节内容实时更新</p>
+            <p style="margin-top: 10px;" id="update-time">最后更新：加载中...</p>
         </footer>
     </div>
 
     <script>
-        // ===== 章节配置 =====
-        function generateChapters(start, end, vol) {
-            const list = [];
-            for (let i = start; i <= end; i++) {
-                const pad = i < 10 ? `0${i}` : `${i}`;
-                let filename = `VOLUME-${vol === 1 ? '01' : '02'}-CHAPTER-`;
-                // Volume 2 chapters 4-6 use 3-digit naming
-                if (vol === 2 && i >= 4 && i <= 6) {
-                    filename += `00${i}`;
-                } else {
-                    filename += pad;
-                }
-                filename += '.md';
-                list.push({
-                    id: `v${vol}c${i}`,
-                    file: `chapters/${filename}`,
-                    title: `第${i}章`,
-                    volume: vol
-                });
-            }
-            return list;
+        // 第一卷章节
+        const vol1 = [
+            { id: 1, file: 'chapters/VOLUME-01-CHAPTER-01.md', title: '序章：新秩序' },
+            { id: 2, file: 'chapters/VOLUME-01-CHAPTER-02.md', title: '第2章：地下区的医生' },
+            { id: 3, file: 'chapters/VOLUME-01-CHAPTER-03.md', title: '第3章：血手帮的阴影' },
+            { id: 4, file: 'chapters/VOLUME-01-CHAPTER-04.md', title: '第4章：铁牙来访' },
+            { id: 5, file: 'chapters/VOLUME-01-CHAPTER-05.md', title: '第5章：灰色包裹' },
+            { id: 6, file: 'chapters/VOLUME-01-CHAPTER-06.md', title: '第6章：地下工坊' },
+            { id: 7, file: 'chapters/VOLUME-01-CHAPTER-07.md', title: '第7章：废城的规矩' },
+            { id: 8, file: 'chapters/VOLUME-01-CHAPTER-08.md', title: '第8章：灰衣的注视' },
+            { id: 9, file: 'chapters/VOLUME-01-CHAPTER-09.md', title: '第9章：普罗米修斯' },
+            { id: 10, file: 'chapters/VOLUME-01-CHAPTER-10.md', title: '第10章：断裂的连线' },
+            { id: 11, file: 'chapters/VOLUME-01-CHAPTER-11.md', title: '第11章：深夜访客' },
+            { id: 12, file: 'chapters/VOLUME-01-CHAPTER-12.md', title: '第12章：老狗坠楼' },
+            { id: 13, file: 'chapters/VOLUME-01-CHAPTER-13.md', title: '第13章：地下火光' },
+            { id: 14, file: 'chapters/VOLUME-01-CHAPTER-14.md', title: '第14章：灰衣特工' },
+            { id: 15, file: 'chapters/VOLUME-01-CHAPTER-15.md', title: '第15章：苏焰的任务' },
+            { id: 16, file: 'chapters/VOLUME-01-CHAPTER-16.md', title: '第16章：逃亡路线' },
+            { id: 17, file: 'chapters/VOLUME-01-CHAPTER-17.md', title: '第17章：小满的求救' },
+            { id: 18, file: 'chapters/VOLUME-01-CHAPTER-18.md', title: '第18章：铁牙的算盘' },
+            { id: 19, file: 'chapters/VOLUME-01-CHAPTER-19.md', title: '第19章：废城之战（序）' },
+            { id: 20, file: 'chapters/VOLUME-01-CHAPTER-20.md', title: '第20章：废城之战（起）' },
+            { id: 21, file: 'chapters/VOLUME-01-CHAPTER-21.md', title: '第21章：废城之战（承）' },
+            { id: 22, file: 'chapters/VOLUME-01-CHAPTER-22.md', title: '第22章：废城之战（转）' },
+            { id: 23, file: 'chapters/VOLUME-01-CHAPTER-23.md', title: '第23章：废城之战（合）' },
+            { id: 24, file: 'chapters/VOLUME-01-CHAPTER-24.md', title: '第24章：钢铁医生' },
+            { id: 25, file: 'chapters/VOLUME-01-CHAPTER-25.md', title: '第25章：地下区的清晨' },
+            { id: 26, file: 'chapters/VOLUME-01-CHAPTER-26.md', title: '第26章：义体工坊' },
+            { id: 27, file: 'chapters/VOLUME-01-CHAPTER-27.md', title: '第27章：钢钉的故事' },
+            { id: 28, file: 'chapters/VOLUME-01-CHAPTER-28.md', title: '第28章：苏焰的伤' },
+            { id: 29, file: 'chapters/VOLUME-01-CHAPTER-29.md', title: '第29章：左臂的秘密' },
+            { id: 30, file: 'chapters/VOLUME-01-CHAPTER-30.md', title: '第30章：王景明的回声' },
+            { id: 31, file: 'chapters/VOLUME-01-CHAPTER-31.md', title: '第31章：铁牙的野心' },
+            { id: 32, file: 'chapters/VOLUME-01-CHAPTER-32.md', title: '第32章：蛇牙会的覆灭' },
+            { id: 33, file: 'chapters/VOLUME-01-CHAPTER-33.md', title: '第33章：老陈的情报' },
+            { id: 34, file: 'chapters/VOLUME-01-CHAPTER-34.md', title: '第34章：钱爷的债' },
+            { id: 35, file: 'chapters/VOLUME-01-CHAPTER-35.md', title: '第35章：泰坦的灰衣' },
+            { id: 36, file: 'chapters/VOLUME-01-CHAPTER-36.md', title: '第36章：克莱恩的微笑' },
+            { id: 37, file: 'chapters/VOLUME-01-CHAPTER-37.md', title: '第37章：普罗米修斯实验' },
+            { id: 38, file: 'chapters/VOLUME-01-CHAPTER-38.md', title: '第38章：父母的名字' },
+            { id: 39, file: 'chapters/VOLUME-01-CHAPTER-39.md', title: '第39章：小满的电磁' },
+            { id: 40, file: 'chapters/VOLUME-01-CHAPTER-40.md', title: '第40章：灰衣的追击' },
+            { id: 41, file: 'chapters/VOLUME-01-CHAPTER-41.md', title: '第41章：苏焰的选择' },
+            { id: 42, file: 'chapters/VOLUME-01-CHAPTER-42.md', title: '第42章：废城的夜晚' },
+            { id: 43, file: 'chapters/VOLUME-01-CHAPTER-43.md', title: '第43章：地下通道' },
+            { id: 44, file: 'chapters/VOLUME-01-CHAPTER-44.md', title: '第44章：第二地下城' },
+            { id: 45, file: 'chapters/VOLUME-01-CHAPTER-45.md', title: '第45章：回收者的地盘' },
+            { id: 46, file: 'chapters/VOLUME-01-CHAPTER-46.md', title: '第46章：黑市的交易' },
+            { id: 47, file: 'chapters/VOLUME-01-CHAPTER-47.md', title: '第47章：克莱恩的交易' },
+            { id: 48, file: 'chapters/VOLUME-01-CHAPTER-48.md', title: '第48章：防护罩' },
+            { id: 49, file: 'chapters/VOLUME-01-CHAPTER-49.md', title: '第49章：绝境求生' },
+            { id: 50, file: 'chapters/VOLUME-01-CHAPTER-50.md', title: '第50章：转折点' },
+            { id: 51, file: 'chapters/VOLUME-01-CHAPTER-51.md', title: '第51章：废城联盟' },
+            { id: 52, file: 'chapters/VOLUME-01-CHAPTER-52.md', title: '第52章：铁拳崛起' },
+            { id: 53, file: 'chapters/VOLUME-01-CHAPTER-53.md', title: '第53章：敌人的敌人' },
+            { id: 54, file: 'chapters/VOLUME-01-CHAPTER-54.md', title: '第54章：地下战线' },
+            { id: 55, file: 'chapters/VOLUME-01-CHAPTER-55.md', title: '第55章：最终布局' },
+            { id: 56, file: 'chapters/VOLUME-01-CHAPTER-56.md', title: '第56章：袭击计划' },
+            { id: 57, file: 'chapters/VOLUME-01-CHAPTER-57.md', title: '第57章：潜入泰坦' },
+            { id: 58, file: 'chapters/VOLUME-01-CHAPTER-58.md', title: '第58章：核心数据' },
+            { id: 59, file: 'chapters/VOLUME-01-CHAPTER-59.md', title: '第59章：逃亡之路' },
+            { id: 60, file: 'chapters/VOLUME-01-CHAPTER-60.md', title: '第60章：数据之战' },
+            { id: 61, file: 'chapters/VOLUME-01-CHAPTER-61.md', title: '第61章：灰衣的背叛' },
+            { id: 62, file: 'chapters/VOLUME-01-CHAPTER-62.md', title: '第62章：泰坦的反击' },
+            { id: 63, file: 'chapters/VOLUME-01-CHAPTER-63.md', title: '第63章：废城的防御' },
+            { id: 64, file: 'chapters/VOLUME-01-CHAPTER-64.md', title: '第64章：血腥战斗' },
+            { id: 65, file: 'chapters/VOLUME-01-CHAPTER-65.md', title: '第65章：黎明前夕' },
+            { id: 66, file: 'chapters/VOLUME-01-CHAPTER-66.md', title: '第66章：新的一天' },
+            { id: 67, file: 'chapters/VOLUME-01-CHAPTER-67.md', title: '第67章：余波' },
+            { id: 68, file: 'chapters/VOLUME-01-CHAPTER-68.md', title: '第68章：重建' },
+            { id: 69, file: 'chapters/VOLUME-01-CHAPTER-69.md', title: '第69章：王景明的遗产' },
+            { id: 70, file: 'chapters/VOLUME-01-CHAPTER-70.md', title: '第70章：云端永生的真相' },
+            { id: 71, file: 'chapters/VOLUME-01-CHAPTER-71.md', title: '第71章：记忆碎片' },
+            { id: 72, file: 'chapters/VOLUME-01-CHAPTER-72.md', title: '第72章：小满的觉醒' },
+            { id: 73, file: 'chapters/VOLUME-01-CHAPTER-73.md', title: '第73章：苏焰的身世' },
+            { id: 74, file: 'chapters/VOLUME-01-CHAPTER-74.md', title: '第74章：兄妹的线索' },
+            { id: 75, file: 'chapters/VOLUME-01-CHAPTER-75.md', title: '第75章：泰坦的阴影' },
+            { id: 76, file: 'chapters/VOLUME-01-CHAPTER-76.md', title: '第76章：钱爷的棋局' },
+            { id: 77, file: 'chapters/VOLUME-01-CHAPTER-77.md', title: '第77章：铁穹雇佣兵' },
+            { id: 78, file: 'chapters/VOLUME-01-CHAPTER-78.md', title: '第78章：月球来信' },
+            { id: 79, file: 'chapters/VOLUME-01-CHAPTER-79.md', title: '第79章：末路抉择' },
+            { id: 80, file: 'chapters/VOLUME-01-CHAPTER-80.md', title: '第80章：卷终·钢铁医生' }
+        ];
+
+        // 第二卷章节
+        const vol2 = [
+            { id: 1, file: 'chapters/VOLUME-02-CHAPTER-01.md', title: '第1章：铁拳的邀请' },
+            { id: 2, file: 'chapters/VOLUME-02-CHAPTER-02.md', title: '第2章：义体工坊' },
+            { id: 3, file: 'chapters/VOLUME-02-CHAPTER-03.md', title: '第3章：钢钉' },
+            { id: 4, file: 'chapters/VOLUME-02-CHAPTER-004.md', title: '第4章：小满的新世界' },
+            { id: 5, file: 'chapters/VOLUME-02-CHAPTER-005.md', title: '第5章：地下区的第三股势力' },
+            { id: 6, file: 'chapters/VOLUME-02-CHAPTER-006.md', title: '第6章：工坊首单' },
+            { id: 7, file: 'chapters/VOLUME-02-CHAPTER-07.md', title: '第7章：人质' },
+            { id: 8, file: 'chapters/VOLUME-02-CHAPTER-08.md', title: '第8章：钱爷的棋局' },
+            { id: 9, file: 'chapters/VOLUME-02-CHAPTER-09.md', title: '第9章：苏焰的旧伤' },
+            { id: 10, file: 'chapters/VOLUME-02-CHAPTER-10.md', title: '第10章：克莱恩的交易' },
+            { id: 11, file: 'chapters/VOLUME-02-CHAPTER-11.md', title: '第11章：铁牙的算盘' },
+            { id: 12, file: 'chapters/VOLUME-02-CHAPTER-12.md', title: '第12章：月光照不到的地方' },
+            { id: 13, file: 'chapters/VOLUME-02-CHAPTER-13.md', title: '第13章：战争准备' },
+            { id: 14, file: 'chapters/VOLUME-02-CHAPTER-14.md', title: '第14章：开战' },
+            { id: 15, file: 'chapters/VOLUME-02-CHAPTER-15.md', title: '第15章：机甲之战' },
+            { id: 16, file: 'chapters/VOLUME-02-CHAPTER-16.md', title: '第16章：战利品' },
+            { id: 17, file: 'chapters/VOLUME-02-CHAPTER-17.md', title: '第17章：黑星的秘密' },
+            { id: 18, file: 'chapters/VOLUME-02-CHAPTER-18.md', title: '第18章：停战' },
+            { id: 19, file: 'chapters/VOLUME-02-CHAPTER-19.md', title: '第19章：旧伤复发' },
+            { id: 20, file: 'chapters/VOLUME-02-CHAPTER-20.md', title: '第20章：苏焰的过去' },
+            { id: 21, file: 'chapters/VOLUME-02-CHAPTER-21.md', title: '第21章：废城扩建' },
+            { id: 22, file: 'chapters/VOLUME-02-CHAPTER-22.md', title: '第22章：左臂的对话' },
+            { id: 23, file: 'chapters/VOLUME-02-CHAPTER-23.md', title: '第23章：白博士的下落' },
+            { id: 24, file: 'chapters/VOLUME-02-CHAPTER-24.md', title: '第24章：中转站' },
+            { id: 25, file: 'chapters/VOLUME-02-CHAPTER-25.md', title: '第25章：监控与反监控' }
+        ];
+
+        // 渲染第一卷目录（倒序，最新在上）
+        function renderV1() {
+            const el = document.getElementById('chapters-v1');
+            const list = [...vol1].reverse();
+            el.innerHTML = list.map((ch, idx) => `
+                <li>
+                    <a onclick="loadChapter(1, ${ch.id})">${ch.title}${idx === 0 ? ' 🆕' : ''}</a>
+                    <div class="meta">点击加载章节内容</div>
+                </li>
+            `).join('');
         }
 
-        // Volume 1
-        const chapters = generateChapters(1, 80, 1);
-        // Volume 2
-        const vol2 = generateChapters(1, 25, 2);
-        chapters.push(...vol2);
-
-        // 章节标题映射
-        const chapterTitles = {
-            'v1c01': '序章：新秩序', 'v1c02': '地下区的医生', 'v1c03': '血手帮的阴影',
-            'v1c04': '铁牙来访', 'v1c05': '灰色包裹', 'v1c06': '地下工坊',
-            'v1c07': '废城的规矩', 'v1c08': '灰衣的注视', 'v1c09': '普罗米修斯',
-            'v1c10': '断裂的连线', 'v1c11': '深夜访客', 'v1c12': '老狗坠楼',
-            'v1c13': '地下火光', 'v1c14': '灰衣特工', 'v1c15': '苏焰的任务',
-            'v1c16': '逃亡路线', 'v1c17': '小满的求救', 'v1c18': '铁牙的算盘',
-            'v1c19': '废城之战（序）', 'v1c20': '废城之战（起）', 'v1c21': '废城之战（承）',
-            'v1c22': '废城之战（转）', 'v1c23': '废城之战（合）', 'v1c24': '钢铁医生',
-            'v1c25': '地下区的清晨', 'v1c26': '义体工坊', 'v1c27': '钢钉的故事',
-            'v1c28': '苏焰的伤', 'v1c29': '左臂的秘密', 'v1c30': '王景明的回声',
-            'v1c31': '铁牙的野心', 'v1c32': '蛇牙会的覆灭', 'v1c33': '老陈的情报',
-            'v1c34': '钱爷的债', 'v1c35': '泰坦的灰衣', 'v1c36': '克莱恩的微笑',
-            'v1c37': '普罗米修斯实验', 'v1c38': '父母的名字', 'v1c39': '小满的电磁',
-            'v1c40': '灰衣的追击', 'v1c41': '苏焰的选择', 'v1c42': '废城的夜晚',
-            'v1c43': '地下通道', 'v1c44': '第二地下城', 'v1c45': '回收者的地盘',
-            'v1c46': '黑市的交易', 'v1c47': '克莱恩的交易', 'v1c48': '防护罩',
-            'v1c49': '绝境求生', 'v1c50': '转折点', 'v1c51': '废城联盟',
-            'v1c52': '铁拳崛起', 'v1c53': '敌人的敌人', 'v1c54': '地下战线',
-            'v1c55': '最终布局', 'v1c56': '袭击计划', 'v1c57': '潜入泰坦',
-            'v1c58': '核心数据', 'v1c59': '逃亡之路', 'v1c60': '数据之战',
-            'v1c61': '灰衣的背叛', 'v1c62': '泰坦的反击', 'v1c63': '废城的防御',
-            'v1c64': '血腥战斗', 'v1c65': '黎明前夕', 'v1c66': '新的一天',
-            'v1c67': '余波', 'v1c68': '重建', 'v1c69': '王景明的遗产',
-            'v1c70': '云端永生的真相', 'v1c71': '记忆碎片', 'v1c72': '小满的觉醒',
-            'v1c73': '苏焰的身世', 'v1c74': '兄妹的线索', 'v1c75': '泰坦的阴影',
-            'v1c76': '钱爷的棋局', 'v1c77': '铁穹雇佣兵', 'v1c78': '月球来信',
-            'v1c79': '末路抉择', 'v1c80': '卷终 · 钢铁医生',
-            'v2c01': '铁拳的邀请', 'v2c02': '义体工坊', 'v2c03': '钢钉',
-            'v2c04': '小满的新世界', 'v2c05': '地下区的第三股势力', 'v2c06': '工坊首单',
-            'v2c07': '人质', 'v2c08': '钱爷的棋局', 'v2c09': '苏焰的旧伤',
-            'v2c10': '克莱恩的交易', 'v2c11': '铁牙的算盘', 'v2c12': '月光照不到的地方',
-            'v2c13': '战争准备', 'v2c14': '开战', 'v2c15': '机甲之战',
-            'v2c16': '战利品', 'v2c17': '黑星的秘密', 'v2c18': '停战',
-            'v2c19': '旧伤复发', 'v2c20': '苏焰的过去', 'v2c21': '废城扩建',
-            'v2c22': '左臂的对话', 'v2c23': '白博士的下落', 'v2c24': '中转站',
-            'v2c25': '监控与反监控'
-        };
-
-        let currentVolume = 1;
-        let currentChapterIndex = -1;
-        let allChapters = chapters;
+        // 渲染第二卷目录（倒序，最新在上）
+        function renderV2() {
+            const el = document.getElementById('chapters-v2');
+            const list = [...vol2].reverse();
+            el.innerHTML = list.map((ch, idx) => `
+                <li>
+                    <a onclick="loadChapter(2, ${ch.id})">${ch.title}${idx === 0 ? ' 🆕' : ''}</a>
+                    <div class="meta">点击加载章节内容</div>
+                </li>
+            `).join('');
+        }
 
         // 切换卷
-        function switchVolume(vol) {
-            currentVolume = vol;
-            document.getElementById('tab-1').className = vol === 1 ? 'active' : '';
-            document.getElementById('tab-2').className = vol === 2 ? 'active' : '';
-            renderChapterList();
-        }
-
-        // 渲染目录
-        function renderChapterList() {
-            const listEl = document.getElementById('chapter-list-content');
-            const volChapters = allChapters.filter(c => c.volume === currentVolume);
-            
-            // Volume 1 正序显示（1→80），Volume 2 倒序（最新在上）
-            const display = currentVolume === 1
-                ? volChapters.slice().reverse()
-                : volChapters.slice().reverse();
-
-            listEl.innerHTML = display.map((ch, idx) => {
-                const title = chapterTitles[ch.id] || ch.title;
-                const isLatest = idx === 0;
-                return `
-                    <li>
-                        <a onclick="loadChapter('${ch.id}')">
-                            ${title}
-                            ${isLatest ? '<span class="latest">最新</span>' : ''}
-                        </a>
-                        <div class="meta">${ch.id.replace('v', '卷').replace('c', '第')}章</div>
-                    </li>
-                `;
-            }).join('');
-
-            // 恢复原始顺序以便后续操作
-            if (currentVolume === 1) volChapters.reverse();
-
-            // 如果在阅读器模式，返回目录界面
-            const contentEl = document.getElementById('chapter-content');
-            document.getElementById('chapter-list-content').parentElement.style.display = 'block';
+        function showVol(v) {
+            document.getElementById('vtab1').className = v === 1 ? 'active' : '';
+            document.getElementById('vtab2').className = v === 2 ? 'active' : '';
+            document.getElementById('vol1-list').className = v === 1 ? 'chapter-list active' : 'chapter-list';
+            document.getElementById('vol2-list').className = v === 2 ? 'chapter-list active' : 'chapter-list';
         }
 
         // 加载章节
-        async function loadChapter(id) {
-            const chapter = allChapters.find(c => c.id === id);
+        async function loadChapter(vol, id) {
+            const arr = vol === 1 ? vol1 : vol2;
+            const chapter = arr.find(c => c.id === id);
             if (!chapter) return;
 
-            currentChapterIndex = allChapters.indexOf(chapter);
-
-            const listEl = document.getElementById('chapter-list-content');
             const contentEl = document.getElementById('chapter-content');
-            
-            listEl.parentElement.style.display = 'none';
+            document.getElementById('vol1-list').className = 'chapter-list';
+            document.getElementById('vol2-list').className = 'chapter-list';
             contentEl.innerHTML = '<div class="loading">📖 加载中...</div>';
 
-            setTimeout(() => {
-                contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+            setTimeout(() => contentEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
             try {
-                const response = await fetch(chapter.file);
-                if (!response.ok) throw new Error('加载失败');
-                const markdown = await response.text();
-                const html = marked.parse(markdown);
-                const title = chapterTitles[ch.id] || chapter.title;
+                const resp = await fetch(chapter.file);
+                if (!resp.ok) throw new Error('加载失败');
+                const md = await resp.text();
+                const html = marked.parse(md);
+
+                // 上一章/下一章
+                const idx = arr.findIndex(c => c.id === id);
+                const prevId = idx > 0 ? arr[idx - 1].id : null;
+                const nextId = idx < arr.length - 1 ? arr[idx + 1].id : null;
 
                 contentEl.innerHTML = `
                     <div class="chapter active">
-                        <h2>${title}</h2>
+                        <h2>${chapter.title}</h2>
                         ${html}
                         <div class="chapter-nav">
-                            <a href="#" class="${currentChapterIndex === 0 ? 'disabled' : ''}" onclick="loadChapter('${currentChapterIndex > 0 ? allChapters[currentChapterIndex - 1].id : ''}'); return false;">← 上一章</a>
-                            <a href="#" onclick="renderChapterList(); document.getElementById('chapter-content').innerHTML = '<div class=\"loading\">📖 点击章节开始阅读</div>'; return false;">返回目录</a>
-                            <a href="#" class="${currentChapterIndex === allChapters.length - 1 ? 'disabled' : ''}" onclick="loadChapter('${currentChapterIndex < allChapters.length - 1 ? allChapters[currentChapterIndex + 1].id : ''}'); return false;">下一章 →</a>
+                            <a href="#" class="${prevId === null ? 'disabled' : ''}" onclick="loadChapter(${vol}, ${prevId}); return false;">← 上一章</a>
+                            <a href="#" onclick="showVol(${vol}); scrollTo(0,0); return false;">返回目录</a>
+                            <a href="#" class="${nextId === null ? 'disabled' : ''}" onclick="loadChapter(${vol}, ${nextId}); return false;">下一章 →</a>
                         </div>
                     </div>
                 `;
-            } catch (error) {
-                contentEl.innerHTML = `<div class="error">❌ 加载失败：${error.message}</div>`;
+            } catch (e) {
+                contentEl.innerHTML = `<div class="error">❌ 加载失败：${e.message}</div>`;
             }
         }
 
         // 初始化
-        renderChapterList();
+        renderV1();
+        renderV2();
+        showVol(1);
+
+        // 更新时间
+        document.getElementById('update-time').textContent = '最后更新：' + new Date().toLocaleString('zh-CN', {timeZone:'Asia/Shanghai'});
     </script>
 </body>
 </html>
