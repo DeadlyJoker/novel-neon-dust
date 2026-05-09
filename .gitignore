@@ -1,0 +1,12 @@
+# Editors
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Backups
+*.bak
+*.backup
+
+# Local
+.DS_Store

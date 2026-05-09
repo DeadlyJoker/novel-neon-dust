@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "novel": "霓虹尘埃",
+  "currentVolume": 2,
+  "currentChapter": 25,
+  "volume1LastChapter": 80,
+  "volume2LastChapter": 100,
+  "volume3LastChapter": 0,
+  "volume4LastChapter": 0,
+  "volume5LastChapter": 0,
+  "status": "writing",
+  "lastWriteTime": "2026-05-09T08:51:00Z",
+  "totalChaptersWritten": 104,
+  "startedAt": "2026-05-07T06:17:00Z",
+  "cronSchedule": "*/30 * * * *",
+  "deployAfterComplete": false,
+  "message": "第二卷第24章「中转站」已完成。林深和苏焰抵达白沙中转站——主动电磁屏蔽覆盖的法外之地，由武装团体「回收者」控制。铁牙介绍的老兵茶馆老板提供一小时保护，给出主仓库磁卡和白景行居住的西区旧宿舍位置。克莱恩意外出现在主仓库——他已先行一步，白景行（白博士）在二十四小时前主动联系克莱恩，据说「把自己卖了」。小满在废城端看到林深的定位信号稳定，但一个未知信号从白沙中转站内部向废城发送了一条极短加密数据后沉默。继续写作第25章「监控与反监控」。"
+}

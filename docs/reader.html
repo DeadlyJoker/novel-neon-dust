@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#f5f0eb" media="(prefers-color-scheme:light)">
+<meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme:dark)">
+<title>小说阅读站</title>
+<style>
+/* ========== CSS 变量 ========== */
+:root {
+  --bg: #f5f0eb;
+  --bg-alt: #ede8e2;
+  --bg-card: #faf7f3;
+  --text: #2c2c2c;
+  --text-muted: #8a8a8a;
+  --text-dim: #b0b0b0;
+  --border: #e0dbd5;
+  --accent: #8b5e3c;
+  --accent-hover: #7a4f30;
+  --accent-light: #e8ddd0;
+  --sidebar-w: 280px;
+  --toolbar-h: 52px;
+  --font-base: 18px;
+  --font-small: 16px;
+  --font-large: 20px;
+  --reading-w: 720px;
+  --line-h: 1.85;
+  --radius: 8px;
+  --transition: 0.25s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --bg-alt: #222222;
+  --bg-card: #252525;
+  --text: #d4d4d4;
+  --text-muted: #888888;
+  --text-dim: #555555;
+  --border: #333333;
+  --accent: #b08060;
+  --accent-hover: #c09070;
+  --accent-light: #2d2d2d;
+}
+
+/* ========== Reset ========== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:var(--font-base);
+  line-height:var(--line-h);
+  transition:background var(--transition),color var(--transition);
+  overflow-x:hidden;
+  min-height:100vh;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hover)}
+button{
+  cursor:pointer;
+  font-family:inherit;
+  border:none;
+  background:none;
+  color:var(--text);
+  font-size:inherit;
+}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ========== Toolbar ========== */
+#toolbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--toolbar-h);
+  background:var(--bg-alt);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 16px;
+  gap:12px;
+  transition:background var(--transition),border-color var(--transition);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+#toolbar .menu-btn{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius);
+  font-size:20px;
+  flex-shrink:0;
+}
+#toolbar .menu-btn:hover{background:var(--border)}
+#book-title{
+  flex:1;font-size:15px;font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--text);text-decoration:none;
+}
+#book-title:hover{color:var(--accent)}
+.toolbar-actions{display:flex;gap:4px;flex-shrink:0}
+.toolbar-actions a,.toolbar-actions button{
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--radius);
+  font-size:16px;
+  transition:background var(--transition);
+  text-decoration:none;color:var(--text);
+}
+.toolbar-actions a:hover,.toolbar-actions button:hover{background:var(--border)}
+#font-size-btn{font-weight:700;letter-spacing:-0.5px;font-size:14px}
+
+/* ========== Sidebar ========== */
+#sidebar{
+  position:fixed;top:var(--toolbar-h);left:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--bg-alt);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  z-index:90;
+  transition:transform var(--transition),background var(--transition),border-color var(--transition);
+  padding:8px 0 80px;
+}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--text-dim);border-radius:2px}
+#sidebar::-webkit-scrollbar-track{background:transparent}
+
+/* Volume group */
+.volume-group{margin-bottom:4px}
+.volume-header{
+  display:flex;align-items:center;
+  padding:10px 16px;gap:8px;
+  font-size:13px;font-weight:600;
+  color:var(--text-muted);
+  cursor:pointer;
+  user-select:none;
+  transition:color var(--transition);
+}
+.volume-header:hover{color:var(--text)}
+.volume-header .arrow{
+  font-size:10px;transition:transform var(--transition);
+  display:inline-block;
+}
+.volume-header .arrow.open{transform:rotate(90deg)}
+.volume-chapters{overflow:hidden;max-height:0;transition:max-height 0.3s ease}
+.volume-chapters.open{max-height:2000px}
+
+/* Chapter item in sidebar */
+.chapter-item{
+  display:block;width:100%;
+  padding:8px 16px 8px 28px;
+  font-size:14px;line-height:1.4;
+  text-align:left;
+  color:var(--text);
+  border-radius:0;
+  transition:background var(--transition),color var(--transition);
+  position:relative;
+}
+.chapter-item:hover{background:var(--border)}
+.chapter-item.current{
+  color:var(--accent);
+  font-weight:600;
+  background:var(--accent-light);
+}
+.chapter-item.current::before{
+  content:'';position:absolute;left:0;top:4px;bottom:4px;
+  width:3px;background:var(--accent);border-radius:0 2px 2px 0;
+}
+
+/* Sidebar close button (mobile) */
+#sidebar-close{
+  display:none;
+  width:100%;padding:12px 16px;
+  font-size:14px;text-align:right;
+  color:var(--text-muted);
+  border-bottom:1px solid var(--border);
+}
+
+/* ========== Main content ========== */
+#main{
+  margin-top:var(--toolbar-h);
+  margin-left:var(--sidebar-w);
+  padding:32px 24px 80px;
+  transition:margin var(--transition),background var(--transition);
+  min-height:calc(100vh - var(--toolbar-h));
+}
+#reader{
+  max-width:var(--reading-w);
+  margin:0 auto;
+}
+
+/* Chapter title */
+#chapter-title{
+  font-size:1.5em;font-weight:700;
+  margin-bottom:20px;
+  padding-bottom:16px;
+  border-bottom:2px solid var(--border);
+  transition:border-color var(--transition);
+}
+
+/* Chapter navigation */
+.chapter-nav{
+  display:flex;justify-content:space-between;gap:12px;
+  margin-bottom:24px;
+}
+.chapter-nav button,
+#chapter-nav-bottom button{
+  padding:8px 20px;
+  border-radius:var(--radius);
+  font-size:14px;
+  background:var(--bg-alt);
+  border:1px solid var(--border);
+  color:var(--text);
+  transition:all var(--transition);
+  white-space:nowrap;
+}
+.chapter-nav button:hover,
+#chapter-nav-bottom button:hover{
+  background:var(--accent);
+  color:white;
+  border-color:var(--accent);
+}
+.chapter-nav button:disabled,
+#chapter-nav-bottom button:disabled{
+  opacity:0.3;cursor:default;pointer-events:none;
+}
+.chapter-nav .nav-right{margin-left:auto}
+
+/* Chapter content */
+#chapter-content{
+  font-size:inherit;
+  line-height:var(--line-h);
+  min-height:60vh;
+  padding-bottom:20px;
+}
+#chapter-content p{
+  text-indent:2em;
+  margin:0 0 0.6em 0;
+  word-break:break-word;
+}
+#chapter-content h1,#chapter-content h2,#chapter-content h3,#chapter-content h4{
+  margin:1.5em 0 0.8em;
+  font-weight:600;
+  text-indent:0;
+}
+#chapter-content h1{font-size:1.4em}
+#chapter-content h2{font-size:1.25em}
+#chapter-content h3{font-size:1.1em}
+#chapter-content blockquote{
+  margin:1em 0;padding:8px 16px;
+  border-left:3px solid var(--accent);
+  background:var(--bg-alt);
+  border-radius:0 var(--radius) var(--radius) 0;
+  color:var(--text-muted);
+}
+#chapter-content blockquote p{text-indent:0}
+#chapter-content hr{
+  border:none;height:1px;
+  background:var(--border);
+  margin:2em auto;width:40%;
+}
+#chapter-content img{
+  max-width:100%;height:auto;
+  display:block;margin:1.5em auto;
+  border-radius:var(--radius);
+}
+#chapter-content code{
+  background:var(--bg-alt);padding:2px 6px;
+  border-radius:4px;font-size:0.85em;
+}
+#chapter-content pre code{padding:12px 16px;display:block;overflow-x:auto}
+#chapter-content ul,#chapter-content ol{padding-left:2.5em;margin:0.6em 0}
+#chapter-content li{text-indent:0}
+#chapter-content a{color:var(--accent);text-decoration:underline}
+
+/* Bottom navigation */
+#chapter-nav-bottom{
+  margin-top:32px;padding-top:24px;
+  border-top:1px solid var(--border);
+  text-align:center;
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+#chapter-nav-bottom button{
+  padding:12px 32px;font-size:15px;
+  min-width:180px;
+}
+/* Bottom sentinel for auto-show */
+#bottom-sentinel{height:1px}
+
+/* Loading & empty states */
+#loading-state,#empty-state{
+  text-align:center;padding:80px 20px;
+  color:var(--text-muted);
+  font-size:15px;
+}
+#loading-state .spinner{
+  display:inline-block;width:24px;height:24px;
+  border:2px solid var(--border);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin-bottom:12px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ========== Mobile floating button ========== */
+#mobile-toc-btn{
+  display:none;
+  position:fixed;bottom:24px;right:24px;z-index:95;
+  height:44px;
+  padding:0 18px;
+  border-radius:22px;
+  background:var(--accent);color:white;
+  font-size:15px;font-weight:500;
+  letter-spacing:2px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.18);
+  align-items:center;justify-content:center;
+  transition:transform 0.2s,background var(--transition);
+}
+#mobile-toc-btn:active{transform:scale(0.92)}
+
+/* ========== Overlay ========== */
+#overlay{
+  display:none;
+  position:fixed;inset:0;z-index:85;
+  background:rgba(0,0,0,0.4);
+  opacity:0;
+  transition:opacity var(--transition);
+}
+#overlay.show{display:block;opacity:1}
+
+/* ========== Font sizes ========== */
+body.font-small{font-size:var(--font-small)}
+body.font-medium{font-size:var(--font-base)}
+body.font-large{font-size:var(--font-large)}
+
+/* ========== Responsive ========== */
+
+/* Tablet & small desktop: sidebar collapsible */
+@media (max-width:1024px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-close{display:block}
+  #main{margin-left:0}
+  #overlay.show{display:block}
+  #mobile-toc-btn{display:flex}
+}
+
+/* Phone */
+@media (max-width:640px){
+  #main{padding:20px 16px 100px}
+  #chapter-title{font-size:1.25em}
+  .chapter-nav button{padding:6px 12px;font-size:13px}
+  #chapter-nav-bottom button{min-width:140px;padding:10px 24px}
+  .toolbar-home-btn{display:none}
+  #book-title{font-size:14px}
+  #sidebar{width:100%;max-width:320px}
+}
+
+/* Desktop: sidebar always visible, toggle to collapse */
+@media (min-width:1025px){
+  #sidebar.sidebar-collapsed{transform:translateX(-100%)}
+  #sidebar.sidebar-collapsed + #main{margin-left:0}
+  #main{transition:margin var(--transition)}
+}
+
+/* Print */
+@media print{
+  #toolbar,#sidebar,#mobile-toc-btn,#overlay,.chapter-nav,#chapter-nav-bottom{display:none!important}
+  #main{margin:0;padding:0}
+}
+</style>
+</head>
+<body class="font-medium">
+
+<!-- ============ Toolbar ============ -->
+<header id="toolbar">
+  <button class="menu-btn" id="menuToggle" aria-label="目录" title="目录">≡</button>
+  <a id="book-title" href="index.html" title="返回书架">小说阅读站</a>
+  <div class="toolbar-actions">
+    <a href="index.html" class="toolbar-home-btn" title="返回书架" aria-label="书架">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7m-9 2v8m3-9v9"/></svg>
+    </a>
+    <button id="font-size-btn" title="字号调节" aria-label="字号">Aa</button>
+    <button id="themeToggle" title="深色模式" aria-label="切换主题">暗</button>
+  </div>
+</header>
+
+<!-- ============ Sidebar ============ -->
+<nav id="sidebar" role="navigation" aria-label="章节目录">
+  <button id="sidebar-close" aria-label="关闭目录">✕ 关闭</button>
+  <div id="toc-container"></div>
+</nav>
+
+<!-- ============ Overlay ============ -->
+<div id="overlay"></div>
+
+<!-- ============ Mobile TOC button ============ -->
+<button id="mobile-toc-btn" aria-label="打开目录" title="目录">目录</button>
+
+<!-- ============ Main content ============ -->
+<main id="main">
+  <article id="reader">
+    <div id="chapter-title"></div>
+
+    <div class="chapter-nav" id="chapter-nav-top">
+      <button id="prevBtn" aria-label="上一章">← 上一章</button>
+      <span class="nav-right"></span>
+      <button id="nextBtn" aria-label="下一章">下一章 →</button>
+    </div>
+
+    <div id="chapter-content">
+      <div id="loading-state">
+        <div class="spinner"></div>
+        <div>加载中...</div>
+      </div>
+      <div id="empty-state" style="display:none">暂无章节内容</div>
+    </div>
+
+    <div id="bottom-sentinel"></div>
+
+    <div id="chapter-nav-bottom">
+      <button id="bottomNextBtn">下一章 →</button>
+    </div>
+  </article>
+</main>
+
+<!-- ============ Marked.js (CDN) ============ -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- ============ 脚本 ============ -->
+<script>
+// ===============================================================
+//  示例章节数据 — 构建脚本未运行时使用，双击即可预览
+//  运行 build.sh 后会加载外部 chapter-list.js 覆盖此数据
+// ===============================================================
+var params = new URLSearchParams(window.location.search);
+    var bookId = params.get('book') || 'apocalypse';
+    var SAMPLE_CHAPTERS = {
+  title: '《示例小说·浮生记》',
+  volumes: [{
+    title: '第一卷：客从何处来',
+    chapters: [
+      { id: 'Ch001', title: '第一章 春雨夜归人' },
+      { id: 'Ch002', title: '第二章 故纸堆中' },
+      { id: 'Ch003', title: '第三章 旧书店的猫' }
+    ]
+  }]
+};
+
+var SAMPLE_CONTENT = {
+  'Ch001': '## 第一章 春雨夜归人\n\n\
+春雨淅淅沥沥地下了一整天，到傍晚也不见停歇的意思。\n\n\
+陈渡把伞往肩上一扛，踩着满地的积水往家走。巷子里的路灯亮得有一搭没一搭的，昏黄的光晕在雨幕中化成一团模糊的暖色。他在一家亮着灯的铺子前停住了脚步。\n\n\
+那是一间旧书店。\n\n\
+说它旧，不仅是因为书旧，连那招牌都是木头的，被雨水浸得发黑，上面的字已经看不大清楚了。陈渡在这条巷子里住了三年，从未留意过这间铺子——它夹在奶茶店和便利店中间，实在不起眼。\n\n\
+但今天不一样。\n\n\
+今天他辞职了。\n\n\
+辞职这件事说大不大，说小不小。他在那家公司干了两年，工资没涨多少，发际线倒是退了不少。上午递了辞呈，下午收拾东西走人，全程不超过四个小时。走出写字楼的时候，他感到的不是解脱，而是一种奇怪的、空落落的轻松——像是背上一直背着的石头被人拿走了，反而有点不习惯。\n\n\
+鬼使神差地，他推开了旧书店的门。\n\n\
+门铃发出一声清脆的"叮咚"。\n\n\
+店里很安静，只有雨水敲打窗棚的声音。书架上密密麻麻地塞满了书，空气里飘着旧纸特有的气味——不是发霉，是一种干燥的、温暖的、像是被阳光晒透了的味道。陈渡把伞收起来，顺着书架慢慢地往里走。\n\n\
+他看到了那本书。\n\n\
+它被放在角落里一个不起眼的架子上，书脊上没有字，封皮是深蓝色的布面，摸上去有些粗糙。他把它抽出来，封面上的烫金字已经褪得差不多了，只隐约能辨认出两个字：\n\n\
+"浮生。"\n\n\
+陈渡翻开扉页。上面用钢笔写着一行字，笔迹清秀而工整：\n\n\
+> 致读到此书的人——\n\
+> 有些路，走着走着就不迷路了。\n\n\
+他笑了笑。这算什么？心灵鸡汤？但他的手没有停下来，翻到了第一页。\n\n\
+内容讲的是一个年轻人的故事。主人公在某个雨夜走进了一条从未走过的巷子，然后在巷子尽头遇到了一位老人，老人说了一句奇怪的话：\n\n\
+"你总算来了，我等了你很久。"\n\n\
+陈渡打了个寒颤。不是冷的，是那种被说中了什么的感觉。\n\n\
+他抬起头，发现柜台后面不知什么时候坐了个人。\n\n\
+那是一个姑娘，二十出头的样子，正捧着一本书看得入神。她穿着白衬衫和牛仔裤，头发随便扎了个马尾，听到动静，抬起眼来。\n\n\
+"那本书有意思吗？"她问。\n\n\
+陈渡张了张嘴，发现不知道该说什么。他只是点了点头。\n\n\
+姑娘笑了："有意思就带走吧，三十块。"\n\n\
+他付了钱，走出店门的时候，雨已经小了。巷子里的灯光映在湿漉漉的石板路上，泛着细碎的光。他低头看了一眼手里的书，封面上那两个字在昏黄的光线下似乎亮了一下。\n\n\
+他把书抱在怀里，往家的方向走去。\n\n\
+他不知道的是，那本书的第一页上，在"你总算来了，我等了你很久"那一行字下面，不知什么时候多了一行字——\n\n\
+和扉页上一样的笔迹：\n\
+"你不是第一个走进来的人，也不会是最后一个。"',
+
+  'Ch002': '## 第二章 故纸堆中\n\n\
+陈渡用了三天时间把那本书读完了。\n\n\
+说是读完，其实书并不厚，一百多页，字也不算密。但他读得慢——不是因为难懂，而是因为书里的每一个细节都让他觉得似曾相识。\n\n\
+主人公叫陈远——跟他同姓。这大概是巧合，他想。陈远也是一个年轻人，也在一座和这座城市很像的城市里生活，也在某一天突然辞了职，走进了一条陌生的巷子。\n\n\
+但接下来的事情就不再是巧合了。\n\n\
+书中写到陈远走进的那条巷子："入口很窄，两侧是老旧的居民楼，墙壁上爬满了青藤。中段有一家奶茶店和一家便利店，再往里走五十米，右手边有一间旧书店，招牌是木头的，被雨水浸得发黑。"\n\n\
+就是那天他走进的那条巷子。就是那间书店。\n\n\
+陈渡把书放下来，盯着天花板看了一会儿。他告诉自己这大概是某种营销手段——这间书店的主人写了这本书，故意把场景写得真实，让人产生代入感。但这解释不了为什么书里的主角也叫陈渡，不是陈远？\n\n\
+等等。\n\n\
+他翻了回去。封面上是"浮生"两个字，扉页上有钢笔留言，然后第一章的标题是——他揉了揉眼睛。\n\n\
+"第一章 春雨夜归人。"\n\n\
+他记得很清楚，第一次翻开的时候，第一章的标题叫做"第一章 春雨夜归人"。没错。但他现在看到的，第一章标题变成了——\n\n\
+"第一章 陈渡。"\n\n\
+他的全名。\n\n\
+陈渡的手抖了一下，书差点掉到地上。他深吸一口气，又慢慢呼出来。别慌。可能是自己记错了。可能是不同版本。可能是——\n\n\
+他翻到第二章。第二章的标题还正常："第二章 故纸堆中。"\n\n\
+内容写的是陈远（还是陈远，他从名字开始读了一遍，确认了是"陈远"而不是"陈渡"）回到家后反复翻看书的故事。他坐在沙发上翻来覆去地看，越看越觉得不对劲，于是决定第二天再去一趟那间书店。\n\n\
+陈渡合上书，看了一眼窗外。天已经黑了。雨又下起来了。\n\n\
+他也想再去那间书店看看。不是现在，太晚了，明天吧。\n\n\
+但那天夜里，他做了一个很长的梦。梦里他走进了一间很大的房间，四周全是书架，书架上的书一本一本自己翻开，每一页都是他过往的记忆——小时候的家，学校的操场，第一次喜欢的人，第一个加班的深夜，辞职信上自己签下的名字。\n\n\
+他走到房间的尽头，那里有一张桌子，桌上放着一本打开的书。书的页边是空白的，一个字都没有。\n\n\
+然后他听到了脚步声。\n\n\
+回头一看，那个看店的姑娘站在门口，手里捧着一杯热茶，雾气袅袅地升起来。\n\n\
+"你来了。"她说，语气很平静，像是早就知道他会来。\n\n\
+"这本书——"他开口。\n\n\
+"书会自己修改内容，"她打断了他，"每一本都会。从来如此。"\n\n\
+她说这话的时候神情很自然，就像在说"今天的雨下得不小"一样平常。\n\n\
+陈渡愣在原地。',
+
+  'Ch003': '## 第三章 旧书店的猫\n\n\
+第二天一早，陈渡就醒了。\n\n\
+他几乎没有犹豫，洗漱完毕就出了门。雨已经停了，空气里带着一股泥土和青草混合的气味，清爽得很。巷子里的积水还在，早晨的阳光斜斜地照过来，把水洼映得像一面面碎掉的镜子。\n\n\
+旧书店的门开着。\n\n\
+门口蹲着一只猫，橘色的，胖乎乎的，尾巴慢悠悠地晃着。看到陈渡走过来，它眯了眯眼睛，像是在打量他，然后"喵"了一声，站起来伸了个懒腰，慢吞吞地走进了店里。\n\n\
+陈渡跟着它走了进去。\n\n\
+店里和前天晚上有些不一样。阳光透过窗子照进来，灰尘在光柱里缓慢地浮动。书架上那些本来看不清的书脊，在阳光下露出了各自的颜色——红、蓝、绿、棕，像是被重新上了色。\n\n\
+柜台后面没有人，但那只橘猫跳上了柜台，舔了舔爪子，用一双琥珀色的眼睛看着陈渡。\n\n\
+"早啊。"\n\n\
+声音从书架深处传来。那个姑娘抱着一摞书走出来，看到陈渡，笑了笑："还真来了。"\n\n\
+她把书放在柜台上，拍了拍手上的灰。\n\n\
+"我来问问那本书的事。"陈渡说，把《浮生》放到柜台上。\n\n\
+姑娘看了一眼书，又看了一眼他，然后说："你发现了？"\n\n\
+"封面上的字变了。"陈渡说。\n\n\
+他今早出门前又看了一眼——封面上的"浮生"两个字变成了"陈渡"。是他的名字，一笔一划，清清楚楚。\n\n\
+姑娘点了点头，没有露出任何惊讶的表情。她把橘猫抱起来，一边顺着它的毛，一边说："这里的书都有个特点：它们会找到自己的读者。"\n\n\
+"什么意思？"\n\
+"意思是，不是你在找书，是书在找你。"\n\n\
+陈渡沉默了几秒钟。"那为什么是我的名字？"\n\n\
+姑娘歪了歪头，好像在想怎么措辞。过了好一会儿，她说："你有没有觉得，人生有时候像一本书？你翻到某一页，发现上面的内容你好像在哪里见过——但你明明从来没有读过它。"\n\n\
+她说话的时候，橘猫从她怀里跳下来，走到陈渡脚边，绕着他的腿蹭了一圈，然后"喵"了一声，算是打了招呼。\n\n\
+陈渡蹲下来，摸了摸它的脑袋。猫发出了满意的咕噜声。\n\n\
+"这店的老板呢？"他问。\n\n\
+"我就是。"姑娘说。\n\n\
+"你？"他抬起头。她看起来最多二十五岁。\n\n\
+"不像吗？"她笑了笑，"我爷爷开的店，传给我了。三年前接手。"\n\n\
+"你叫什么名字？"\n\n\
+她想了想，好像这个问题需要一点思考时间。然后她说："我叫沈纸。纸张的纸。"\n\n\
+"沈纸，"陈渡重复了一遍这个有点特别的名字，"那你能告诉我，这本书到底是怎么回事吗？"\n\n\
+沈纸靠到柜台上，抱着手臂，像是在做一个重要的决定。然后她说："这样吧，你先把这本书读完。读完之后，如果你还想知道答案，再来找我。"\n\n\
+"然后你就会告诉我？"\n\n\
+"然后我可能会告诉你。"\n\n\
+陈渡看着她的眼睛。她的眼神很清澈，不像是在开玩笑，也不像是在故弄玄虚。他点了点头，把那本书重新拿起来。\n\n\
+走出店门的时候，那只橘猫又跟了出来，蹲在门口目送他离开。\n\n\
+陈渡走出去几步，又回头看了看。旧书店沐浴在早晨的阳光里，招牌上的字在光线下闪着微弱的金色。他突然有了一种奇怪的感觉——好像这条巷子他来过很多次，好像这间书店一直在等他来。\n\n\
+他低头看着手里的书，封面上自己的名字在阳光下泛着淡淡的金光。' +
+  '\n\n---\n\n*（示例章节完，运行 build.sh 后加载真实章节内容）*'
+};
+</script>
+
+<script>
+// ===============================================================
+//  阅读站核心逻辑
+// ===============================================================
+(function() {
+  'use strict';
+
+  // ---- State ----
+  var CHAPTER_DATA = null; // Will be loaded from external script or sample
+  var CHAPTER_IDS = [];
+  var currentChapterId = null;
+  var isTransitioning = false;
+
+  // ---- DOM refs ----
+  var $ = function(id) { return document.getElementById(id); };
+  var el = {
+    title: $('chapter-title'),
+    content: $('chapter-content'),
+    loading: $('loading-state'),
+    empty: $('empty-state'),
+    prevBtn: $('prevBtn'),
+    nextBtn: $('nextBtn'),
+    bottomNextBtn: $('bottomNextBtn'),
+    bottomSentinel: $('bottom-sentinel'),
+    toc: $('toc-container'),
+    sidebar: $('sidebar'),
+    overlay: $('overlay'),
+    menuToggle: $('menuToggle'),
+    mobileTocBtn: $('mobile-toc-btn'),
+    sidebarClose: $('sidebar-close'),
+    themeToggle: $('themeToggle'),
+    fontSizeBtn: $('font-size-btn'),
+    bookTitle: $('book-title'),
+    navTop: $('chapter-nav-top'),
+    navBottom: $('chapter-nav-bottom'),
+  };
+
+  // ============================================================
+  //  Chapter data loading
+  // ============================================================
+  function loadChapterData() {
+    return new Promise(function(resolve) {
+      var script = document.createElement('script');
+      script.src = bookId + '/chapter-list.js';
+      script.onload = function() {
+        if (typeof CHAPTER_LIST !== 'undefined' && CHAPTER_LIST && CHAPTER_LIST.volumes && CHAPTER_LIST.volumes.length > 0) {
+          resolve(CHAPTER_LIST);
+        } else {
+          resolve(null);
+        }
+      };
+      script.onerror = function() { resolve(null); };
+      document.head.appendChild(script);
+      // Timeout for slow network
+      setTimeout(function() { resolve(null); }, 2000);
+    });
+  }
+
+  // Build flat chapter ID list
+  function buildChapterIndex(data) {
+    var ids = [];
+    for (var v = 0; v < data.volumes.length; v++) {
+      var vol = data.volumes[v];
+      for (var c = 0; c < vol.chapters.length; c++) {
+        ids.push(vol.chapters[c].id);
+      }
+    }
+    return ids;
+  }
+
+  // Find chapter by ID
+  function findChapter(data, id) {
+    for (var v = 0; v < data.volumes.length; v++) {
+      var vol = data.volumes[v];
+      for (var c = 0; c < vol.chapters.length; c++) {
+        if (vol.chapters[c].id === id) return vol.chapters[c];
+      }
+    }
+    return null;
+  }
+
+  function getPrevNext(id) {
+    var idx = CHAPTER_IDS.indexOf(id);
+    return {
+      prev: idx > 0 ? CHAPTER_IDS[idx - 1] : null,
+      next: idx < CHAPTER_IDS.length - 1 ? CHAPTER_IDS[idx + 1] : null
+    };
+  }
+
+  // ============================================================
+  //  Chapter content loading
+  // ============================================================
+  function loadChapterContent(chapter) {
+    // Check sample content first
+    if (typeof SAMPLE_CONTENT !== 'undefined' && SAMPLE_CONTENT[chapter.id]) {
+      return Promise.resolve(SAMPLE_CONTENT[chapter.id]);
+    }
+    // Fallback: fetch from markdown file
+    if (chapter.file) {
+      return fetch(chapter.file)
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        })
+        .catch(function() { return null; });
+    }
+    return Promise.resolve(null);
+  }
+
+  function renderMarkdown(text) {
+    if (typeof marked !== 'undefined' && marked.parse) {
+      return marked.parse(text, { breaks: true, gfm: true });
+    }
+    // Fallback: basic markdown rendering
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+  }
+
+  // ============================================================
+  //  Navigation
+  // ============================================================
+  function loadChapter(id) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    var chapter = findChapter(CHAPTER_DATA, id);
+    if (!chapter) { isTransitioning = false; return; }
+
+    // Show loading
+    el.content.innerHTML = '<div id="loading-state"><div class="spinner"></div><div>加载中...</div></div>';
+
+    currentChapterId = id;
+
+    // Update URL hash (without scrolling)
+    history.replaceState(null, '', '#' + id);
+
+    // Save progress
+    localStorage.setItem('lastChapter', id);
+
+    // Update title
+    el.title.textContent = chapter.title;
+
+    // Update nav buttons
+    var pn = getPrevNext(id);
+    el.prevBtn.disabled = !pn.prev;
+    el.nextBtn.disabled = !pn.next;
+    el.bottomNextBtn.disabled = !pn.next;
+    el.bottomNextBtn.textContent = pn.next ? '下一章 →' : '已是最后一章';
+
+    // Handle bottom nav visibility
+    if (!pn.next) {
+      el.navBottom.style.opacity = '0.3';
+    } else {
+      el.navBottom.style.opacity = '1';
+    }
+
+    // Update sidebar active
+    updateSidebarActive(id);
+
+    // Load content
+    loadChapterContent(chapter).then(function(md) {
+      if (md) {
+        el.content.innerHTML = renderMarkdown(md);
+      // Lazy-load marked if still missing
+      if (typeof marked === 'undefined') {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        s.onload = function() {
+          // Re-render with proper markdown
+          el.content.innerHTML = renderMarkdown(md);
+        };
+        document.head.appendChild(s);
+      }
+      } else {
+        el.content.innerHTML = '<div id="empty-state">⚠️ 章节内容加载失败</div>';
+      }
+
+      // Auto-show bottom on scroll (re-observe sentinel)
+      observeBottom();
+
+      // Restore scroll position
+      var savedPos = localStorage.getItem('scrollPos_' + id);
+      if (savedPos) {
+        requestAnimationFrame(function() {
+          window.scrollTo(0, parseInt(savedPos, 10));
+        });
+      } else {
+        window.scrollTo(0, 0);
+      }
+
+      isTransitioning = false;
+    });
+
+    // Close sidebar on mobile
+    closeSidebar();
+  }
+
+  // Bottom sentinel observer
+  var bottomObserver = null;
+  function observeBottom() {
+    if (bottomObserver) bottomObserver.disconnect();
+    bottomObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          el.navBottom.style.opacity = '1';
+          el.navBottom.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+    bottomObserver.observe(el.bottomSentinel);
+  }
+
+  // ============================================================
+  //  Sidebar rendering
+  // ============================================================
+  function renderSidebar() {
+    if (!CHAPTER_DATA) return;
+    el.bookTitle.textContent = CHAPTER_DATA.title || '小说阅读站';
+
+    var html = '';
+    for (var v = 0; v < CHAPTER_DATA.volumes.length; v++) {
+      var vol = CHAPTER_DATA.volumes[v];
+      var volId = 'vol-' + v;
+      var isActive = false;
+      for (var c = 0; c < vol.chapters.length; c++) {
+        if (vol.chapters[c].id === currentChapterId) { isActive = true; break; }
+      }
+
+      html += '<div class="volume-group">';
+      html += '<div class="volume-header" onclick="toggleVolume(\'' + volId + '\')">';
+      html += '<span class="arrow' + (isActive ? ' open' : '') + '">▸</span>';
+      html += '<span>' + escapeHtml(vol.name || vol.title) + '</span>';
+      html += '</div>';
+      html += '<div class="volume-chapters' + (isActive ? ' open' : '') + '" id="' + volId + '">';
+
+      for (var c = 0; c < vol.chapters.length; c++) {
+        var ch = vol.chapters[c];
+        var cur = ch.id === currentChapterId ? ' current' : '';
+        html += '<button class="chapter-item' + cur + '" data-id="' + ch.id + '">';
+        html += escapeHtml(ch.title);
+        html += '</button>';
+      }
+
+      html += '</div></div>';
+    }
+
+    el.toc.innerHTML = html;
+
+    // Add click listeners
+    el.toc.querySelectorAll('.chapter-item').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        loadChapter(this.getAttribute('data-id'));
+      });
+    });
+  }
+
+  function updateSidebarActive(id) {
+    el.toc.querySelectorAll('.chapter-item').forEach(function(item) {
+      item.classList.toggle('current', item.getAttribute('data-id') === id);
+    });
+
+    // Expand current volume
+    el.toc.querySelectorAll('.volume-group').forEach(function(group) {
+      var chapters = group.querySelector('.volume-chapters');
+      var hasCurrent = group.querySelector('.chapter-item.current') !== null;
+      chapters.classList.toggle('open', hasCurrent);
+      var arrow = group.querySelector('.arrow');
+      if (arrow) arrow.classList.toggle('open', hasCurrent);
+    });
+  }
+
+  // Volume toggle (exposed globally for onclick)
+  window.toggleVolume = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('open');
+    var arrow = el.previousElementSibling.querySelector('.arrow');
+    if (arrow) arrow.classList.toggle('open');
+  };
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ============================================================
+  //  Sidebar toggle (responsive)
+  // ============================================================
+  function isDesktop() {
+    return window.innerWidth > 1024;
+  }
+
+  function openSidebar() {
+    if (isDesktop()) {
+      el.sidebar.classList.remove('sidebar-collapsed');
+    } else {
+      el.sidebar.classList.add('open');
+      el.overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    if (isDesktop()) {
+      el.sidebar.classList.add('sidebar-collapsed');
+    } else {
+      el.sidebar.classList.remove('open');
+      el.overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function toggleSidebar() {
+    if (isDesktop()) {
+      el.sidebar.classList.toggle('sidebar-collapsed');
+    } else {
+      if (el.sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    }
+  }
+
+  el.menuToggle.addEventListener('click', toggleSidebar);
+  el.mobileTocBtn.addEventListener('click', openSidebar);
+  el.sidebarClose.addEventListener('click', closeSidebar);
+  el.overlay.addEventListener('click', closeSidebar);
+
+  // ============================================================
+  //  Theme toggle
+  // ============================================================
+  var THEME_KEY = 'readerTheme';
+
+  function getSavedTheme() {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(mode) {
+    document.documentElement.setAttribute('data-theme', mode);
+    el.themeToggle.textContent = mode === 'dark' ? '亮' : '暗';
+    el.themeToggle.title = mode === 'dark' ? '浅色模式' : '深色模式';
+    // Update meta theme-color
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = mode === 'dark' ? '#1a1a1a' : '#f5f0eb';
+  }
+
+  el.themeToggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  // ============================================================
+  //  Font size
+  // ============================================================
+  var FONT_KEY = 'readerFontSize';
+  var FONT_SIZES = ['small', 'medium', 'large'];
+  var FONT_LABELS = ['小', '中', '大'];
+
+  function getSavedFontSize() {
+    var saved = localStorage.getItem(FONT_KEY);
+    if (FONT_SIZES.indexOf(saved) >= 0) return saved;
+    return 'medium';
+  }
+
+  function applyFontSize(size) {
+    FONT_SIZES.forEach(function(s) { document.body.classList.remove('font-' + s); });
+    document.body.classList.add('font-' + size);
+    el.fontSizeBtn.textContent = 'Aa' + FONT_LABELS[FONT_SIZES.indexOf(size)];
+  }
+
+  el.fontSizeBtn.addEventListener('click', function() {
+    var current = getSavedFontSize();
+    var idx = (FONT_SIZES.indexOf(current) + 1) % FONT_SIZES.length;
+    var next = FONT_SIZES[idx];
+    applyFontSize(next);
+    localStorage.setItem(FONT_KEY, next);
+  });
+
+  // ============================================================
+  //  Keyboard shortcuts
+  // ============================================================
+  document.addEventListener('keydown', function(e) {
+    // Don't intercept if typing in an input/textarea
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (!el.prevBtn.disabled) {
+        var pn = getPrevNext(currentChapterId);
+        if (pn.prev) loadChapter(pn.prev);
+      }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (!el.nextBtn.disabled) {
+        var pn = getPrevNext(currentChapterId);
+        if (pn.next) loadChapter(pn.next);
+      }
+    }
+  });
+
+  // ============================================================
+  //  Button click handlers
+  // ============================================================
+  el.prevBtn.addEventListener('click', function() {
+    var pn = getPrevNext(currentChapterId);
+    if (pn.prev) loadChapter(pn.prev);
+  });
+
+  el.nextBtn.addEventListener('click', function() {
+    var pn = getPrevNext(currentChapterId);
+    if (pn.next) loadChapter(pn.next);
+  });
+
+  el.bottomNextBtn.addEventListener('click', function() {
+    var pn = getPrevNext(currentChapterId);
+    if (pn.next) loadChapter(pn.next);
+  });
+
+  // ============================================================
+  //  Scroll position memory
+  // ============================================================
+  var scrollTimer = null;
+  window.addEventListener('scroll', function() {
+    if (!currentChapterId) return;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function() {
+      localStorage.setItem('scrollPos_' + currentChapterId, window.scrollY);
+    }, 300);
+  });
+
+  // Save on beforeunload
+  window.addEventListener('beforeunload', function() {
+    if (currentChapterId) {
+      localStorage.setItem('scrollPos_' + currentChapterId, window.scrollY);
+    }
+  });
+
+  // ============================================================
+  //  URL hash navigation (browser back/forward)
+  // ============================================================
+  window.addEventListener('hashchange', function() {
+    var id = decodeURIComponent(window.location.hash.replace('#', ''));
+    if (id && findChapter(CHAPTER_DATA, id) && id !== currentChapterId) {
+      loadChapter(id);
+    }
+  });
+
+  // ============================================================
+  //  Init
+  // ============================================================
+  function init() {
+    // Apply saved preferences immediately
+    applyTheme(getSavedTheme());
+    applyFontSize(getSavedFontSize());
+
+    // Load chapter data
+    loadChapterData().then(function(data) {
+      if (data) {
+        CHAPTER_DATA = data;
+      } else if (typeof SAMPLE_CHAPTERS !== 'undefined') {
+        CHAPTER_DATA = SAMPLE_CHAPTERS;
+      }
+
+      if (!CHAPTER_DATA || !CHAPTER_DATA.volumes || CHAPTER_DATA.volumes.length === 0) {
+        // Show empty state
+        el.loading.style.display = 'none';
+        el.empty.style.display = 'block';
+        return;
+      }
+
+      CHAPTER_IDS = buildChapterIndex(CHAPTER_DATA);
+
+      // Determine initial chapter: URL hash > localStorage > first chapter
+      var hashId = decodeURIComponent(window.location.hash.replace('#', ''));
+      var lastId = localStorage.getItem('lastChapter');
+      var targetId = hashId || lastId || CHAPTER_IDS[0];
+
+      // Validate target exists
+      if (!findChapter(CHAPTER_DATA, targetId)) {
+        targetId = CHAPTER_IDS[0];
+      }
+
+      // Render sidebar (with current chapter highlighted)
+      renderSidebar();
+
+      // Load chapter
+      loadChapter(targetId);
+    });
+  }
+
+  // Start when DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
