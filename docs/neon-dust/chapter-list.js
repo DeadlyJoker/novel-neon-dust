@@ -135,5 +135,7 @@ var CHAPTER_LIST={title:"《霓虹尘埃》",author:"苏苏工作室",volumes:[
 {id:"Ch131",title:"断电计划",file:"neon-dust/chapters/Ch131.md"},
 {id:"Ch132",title:"老狗活着",file:"neon-dust/chapters/Ch132.md"},
 {id:"Ch133",title:"出发救老狗",file:"neon-dust/chapters/Ch133.md"},
+{id:"Ch134",title:"第二地下城",file:"neon-dust/chapters/Ch134.md"},
+{id:"Ch135",title:"血与焊条",file:"neon-dust/chapters/Ch135.md"},
 ]},
 ]};
