@@ -23,6 +23,11 @@
 - **第一卷大纲**：`novel-projects/neon-dust/outline/VOLUME-01-CHAPTER-OUTLINE.md`（已完成）
 - **第二卷大纲**：`novel-projects/neon-dust/outline/VOLUME-02-CHAPTER-OUTLINE.md`（100章已就绪 ✅）
 
+### ⚠️ 重要：文件名规范
+- **文件名必须统一使用两位数字**：`VOLUME-0{vol}-CHAPTER-{num:02d}.md`
+- 例如：第5章 → `VOLUME-02-CHAPTER-05.md`（用05而不是5或005）
+- 不正确：`CHAPTER-5.md`、`CHAPTER-005.md` 等
+
 ### 写作要求
 
 **质量核验清单：**
@@ -48,42 +53,50 @@
 2. 从大纲文件找到对应章节的梗概
 3. 读取前一章内容作为上下文
 4. 写本章内容（保持风格、人设、情节一致）
-5. 保存到 `chapters/VOLUME-0{vol}-CHAPTER-{num}.md`
-6. 更新 state.json：
+5. **保存章节文件**：保存到 `chapters/VOLUME-0{vol}-CHAPTER-{num:02d}.md`
+   - **必须使用两位数字**：`printf "%02d" $num` 格式化
+   - 第5章 → `CHAPTER-05.md`，第35章 → `CHAPTER-35.md`
+6. **同步章节文件**：复制到网站目录
+   - `cp "chapters/VOLUME-0{vol}-CHAPTER-{num:02d}.md" "/Users/wangqichen/.openclaw/workspace/novel-apocalypse/neon-dust/chapters/"`
+7. **更新章节名文件**：追加一行到 chapter-names.js
+   - 从本章文件的 Markdown 标题行（`# 第X卷·第X章：「标题」`）中提取书名号 `「」` 里的内容作为标题
+   - 追加到 `/Users/wangqichen/.openclaw/workspace/novel-apocalypse/neon-dust/chapter-names.js` 的 `}` 之前
+   - 格式：`  'VOLUME-0{vol}-CHAPTER-{num:02d}': '标题',\n`
+8. **推送上线**：
+   - `cd /Users/wangqichen/.openclaw/workspace/novel-apocalypse`
+   - `git add neon-dust/chapters/VOLUME-0{vol}-CHAPTER-{num:02d}.md neon-dust/chapter-names.js`
+   - `git commit -m "📖 霓虹尘埃 第{currentChapter}章"`
+   - `git push`
+   - 等待 1-2 分钟，GitHub Pages 自动更新
+8. 更新 state.json：
    - currentChapter += 1
    - totalChaptersWritten += 1
    - lastWriteTime = now
-7. 如果写完一卷的最后一章：
-   - 执行 `bash /Users/wangqichen/.openclaw/workspace/novel-projects/neon-dust/auto-writer/deploy.sh` 自动部署
+9. 如果写完一卷的最后一章：
    - currentVolume += 1，currentChapter = 1
    - 如果下一卷没有大纲，设置 status = "waiting_outline"，等待大纲生成
    - 如果有大纲，保持 status = "writing" 继续写
-8. 如果所有卷写完，status = "complete"，自动执行 deploy.sh
+10. 如果所有卷写完，status = "complete"
 
 ### 状态说明
 - `writing` — 正常写作
 - `waiting_outline` — 等待大纲生成，跳过本轮
 - `complete` — 全部写完
 
-### 第一卷章节状态
+### 章节状态
 
-| 章节 | 状态 |
-|------|------|
-| 第1-80章 | ✅ 已写完（已部署上线） |
+| 卷 | 章节范围 | 状态 |
+|------|------|------|
+| 第一卷「废城医生」 | 第1-80章 | ✅ 已完稿并部署 |
+| 第二卷「铁拳兄弟」 | 第81-180章（100章） | ✅ 已完稿并部署 |
+| 第三卷「身世之秘」 | 第181-279章（100章） | ✅ 已完稿并部署 |
+| 第四卷 | 第280章起 | ⏳ 等待大纲 |
 
-### 第二卷
+### 第四卷
 
-**状态：** ✅ 第一卷已完稿，正在生成第二卷大纲
+**状态：** ⏳ 第三卷已完稿，等待第四卷大纲
 
-**大纲文件：** `novel-projects/neon-dust/outline/VOLUME-02-CHAPTER-OUTLINE.md`（后台生成中）
-
-**第二卷核心线索：**
-- 林深正式加入铁拳兄弟会，建立义体工坊
-- 三帮大战（铁拳 vs 残余蛇牙 vs 新势力「黑星会」）
-- 破解义体信用锁，废城成为自由区
-- 苏焰身份全面暴露，泰坦追杀
-- 地下区联盟建立
-- 铁牙背叛暗线明朗
+**大纲文件：** `novel-projects/neon-dust/outline/VOLUME-04-OUTLINE.md`（尚未创建）
 
 ## 部署流程（写完整个卷后触发）
 
@@ -102,10 +115,11 @@ bash deploy.sh
 
 ## 卷切换逻辑
 
-第一卷已写完（✅ 共80章）。当前状态：
-1. currentVolume=2, currentChapter=1
-2. 第二卷大纲正在后台生成，完成后将切换回 writing 状态
-3. 大纲就绪前，定时任务不会写新章
+前三卷已完稿（✅ 共279章）。当前状态：
+1. currentVolume=4, currentChapter=1
+2. 等待第四卷大纲 `outline/VOLUME-04-OUTLINE.md` 创建
+3. 大纲就绪后，需手动将 state.json 的 status 改为 "writing"
+4. 大纲就绪前，定时任务不会写新章
 
 ## 技术信息
 
